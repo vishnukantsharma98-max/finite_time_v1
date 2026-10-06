@@ -1,0 +1,74 @@
+<resources>
+    <string name="app_name">Finite Time</string>
+    <string name="app_tagline">BEFORE IT CHANGES</string>
+
+    <!-- Navigation Destinations -->
+    <string name="nav_home">Home</string>
+    <string name="nav_focus">Focus</string>
+    <string name="nav_system">System</string>
+    <string name="nav_stats">Stats</string>
+    <string name="nav_calendar">Calendar</string>
+
+    <!-- Theme Selector -->
+    <string name="theme_label">APPEARANCE</string>
+    <string name="theme_system">System</string>
+    <string name="theme_dark">Dark</string>
+    <string name="theme_light">Light</string>
+    <string name="cd_theme_selector">Appearance Mode Selector</string>
+
+    <!-- Stage 2 Home Screen -->
+    <string name="home_overline">IN TIME</string>
+    <string name="home_header">BEFORE IT CHANGES</string>
+    <string name="home_target_date_label">01 JULY 2028</string>
+    <string name="home_today_remaining_label">TODAY REMAINING</string>
+    <string name="cd_countdown_format_menu">Countdown Display Format Menu</string>
+    <string name="cd_today_remaining_progress">Today remaining circular progress</string>
+    <string name="format_dhms">Days Hours Minutes Seconds</string>
+    <string name="format_hms">Hours Minutes Seconds</string>
+    <string name="format_ms">Minutes Seconds</string>
+    <string name="format_s">Seconds</string>
+
+    <!-- Stage 3 Focus Screen -->
+    <string name="focus_header">FOCUS</string>
+    <string name="focus_career_label">Career Focus</string>
+    <string name="focus_status_idle">Idle</string>
+    <string name="focus_status_running">● Running</string>
+    <string name="focus_status_paused">● Paused</string>
+    <string name="focus_action_start">Start</string>
+    <string name="focus_action_pause">Pause</string>
+    <string name="focus_action_resume">Resume</string>
+    <string name="focus_action_stop">Stop</string>
+    <string name="focus_today_section_header">TODAY</string>
+    <string name="focus_today_label">Focus</string>
+    <string name="focus_notification_channel_name">Active Focus Timer</string>
+    <string name="focus_notification_title">Focus</string>
+    <string name="focus_notification_subtitle">Career Focus</string>
+
+    <!-- Stage 6 System Screen -->
+    <string name="system_header">SYSTEM</string>
+    <string name="system_level_up_label">LEVEL UP</string>
+    <string name="system_todays_quest_header">TODAY\'S QUEST</string>
+    <string name="system_weekly_quest_header">WEEKLY QUEST</string>
+    <string name="system_achievements_header">ACHIEVEMENTS</string>
+    <string name="system_quest_complete">✓ COMPLETE</string>
+    <string name="system_quest_incomplete">INCOMPLETE</string>
+    <string name="system_achievement_unlocked">UNLOCKED</string>
+
+    <!-- Stage 4 Stats Screen -->
+    <string name="stats_header">STATS</string>
+    <string name="stats_period_day">Day</string>
+    <string name="stats_period_week">Week</string>
+    <string name="stats_period_month">Month</string>
+    <string name="stats_focus_label">Focus</string>
+    <string name="stats_wasted_label">Wasted</string>
+    <string name="stats_average_focus_header">AVERAGE FOCUS</string>
+    <string name="stats_week_section_header">CURRENT WEEK</string>
+    <string name="stats_month_section_header">CURRENT MONTH</string>
+
+    <!-- Stage 5 Calendar Screen -->
+    <string name="calendar_header">CALENDAR</string>
+    <string name="cd_calendar_prev_month">Previous Month</string>
+    <string name="cd_calendar_next_month">Next Month</string>
+    <string name="calendar_before_app_start">Unavailable · Before app start</string>
+    <string name="calendar_future_date">Future date</string>
+</resources>

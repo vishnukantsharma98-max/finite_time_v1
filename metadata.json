@@ -1,0 +1,6 @@
+{
+  "name": "Finite Time",
+  "description": "A minimalist personal time instrument inspired by the idea that time is finite.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
