@@ -1,7 +1,6 @@
 package com.example.ui.screens.home
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -15,7 +14,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -41,9 +39,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
@@ -61,18 +57,16 @@ import com.example.ui.navigation.AppDestination
 import java.time.Clock
 import java.time.Instant
 import java.util.TimeZone
-import kotlin.math.cos
-import kotlin.math.sin
 import kotlinx.coroutines.delay
 
 /**
  * Minimalist Personal Time Instrument — Home Screen.
  *
  * Hierarchy:
- * 1. IN TIME / BEFORE IT CHANGES + subtle format selector
- * 2. Dominant Precision Circular Countdown (with radial tick dial, primary/secondary readout + XX% LEFT)
- * 3. Framed TODAY REMAINING instrument readout (HH:MM:SS + circular remaining indicator)
- * 4. Quiet Passing-Time Month Calendar (Today highlighted in restrained emerald)
+ * 1. IN TIME / BEFORE IT CHANGES + subtle format menu
+ * 2. Dominant Clean Circular Countdown Ring (primary/secondary readout + XX% LEFT)
+ * 3. Modern rounded TODAY REMAINING card (HH:MM:SS + circular indicator)
+ * 4. Quiet Passing-Time Month Calendar card (Today highlighted in restrained emerald)
  */
 @Composable
 fun HomeScreen(
@@ -127,12 +121,12 @@ fun HomeScreen(
         .background(MaterialTheme.colorScheme.background)
         .testTag(AppDestination.HOME.screenTestTag)
         .verticalScroll(rememberScrollState())
-        .padding(horizontal = 24.dp, vertical = 12.dp),
+        .padding(horizontal = 24.dp, vertical = 16.dp),
     horizontalAlignment = Alignment.CenterHorizontally,
   ) {
     Column(
       modifier = Modifier.fillMaxWidth().widthIn(max = 600.dp),
-      verticalArrangement = Arrangement.spacedBy(28.dp),
+      verticalArrangement = Arrangement.spacedBy(24.dp),
     ) {
       // 1. Top Title + Format Menu
       HomeTitleSection(
@@ -140,16 +134,16 @@ fun HomeScreen(
         onCountdownFormatSelected = onCountdownFormatSelected,
       )
 
-      // 2. Dominant Large Precision Circular Countdown
+      // 2. Dominant Large Clean Circular Countdown
       MainCircularCountdownSection(
         snapshot = snapshot,
         countdownFormat = countdownFormat,
       )
 
-      // 3. Today Remaining Instrument Readout
+      // 3. Today Remaining Card
       TodayRemainingSection(snapshot = snapshot)
 
-      // 4. Current Month Calendar Section
+      // 4. Current Month Calendar Card
       MonthCalendarSection(calendar = snapshot.calendarMonth)
     }
   }
@@ -167,21 +161,26 @@ private fun HomeTitleSection(
     horizontalArrangement = Arrangement.SpaceBetween,
     verticalAlignment = Alignment.Top,
   ) {
-    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
       Text(
         text = stringResource(R.string.home_overline),
         style =
-          MaterialTheme.typography.labelMedium.copy(
-            fontFamily = FontFamily.Monospace,
-            fontSize = 10.sp,
-            letterSpacing = 2.8.sp,
+          MaterialTheme.typography.labelSmall.copy(
+            fontFamily = FontFamily.Default,
+            fontSize = 11.sp,
+            fontWeight = FontWeight.SemiBold,
+            letterSpacing = 0.5.sp,
           ),
-        color = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.85f),
+        color = MaterialTheme.colorScheme.tertiary,
         modifier = Modifier.testTag("home_overline"),
       )
       Text(
         text = stringResource(R.string.home_header),
-        style = MaterialTheme.typography.headlineMedium,
+        style =
+          MaterialTheme.typography.headlineMedium.copy(
+            fontFamily = FontFamily.Default,
+            fontWeight = FontWeight.SemiBold,
+          ),
         color = MaterialTheme.colorScheme.onBackground,
         modifier = Modifier.testTag("screen_home_header"),
       )
@@ -198,7 +197,7 @@ private fun HomeTitleSection(
           imageVector = Icons.Default.MoreVert,
           contentDescription = stringResource(R.string.cd_countdown_format_menu),
           tint = MaterialTheme.colorScheme.onSurfaceVariant,
-          modifier = Modifier.size(18.dp),
+          modifier = Modifier.size(20.dp),
         )
       }
 
@@ -206,8 +205,8 @@ private fun HomeTitleSection(
         expanded = menuExpanded,
         onDismissRequest = { menuExpanded = false },
         modifier =
-          Modifier.background(MaterialTheme.colorScheme.background)
-            .border(BorderStroke(0.5.dp, MaterialTheme.colorScheme.outline)),
+          Modifier.background(MaterialTheme.colorScheme.surface, RoundedCornerShape(12.dp))
+            .border(BorderStroke(0.5.dp, MaterialTheme.colorScheme.outline), RoundedCornerShape(12.dp)),
       ) {
         CountdownDisplayFormat.entries.forEach { formatOption ->
           val isSelected = formatOption == countdownFormat
@@ -217,8 +216,8 @@ private fun HomeTitleSection(
                 text = stringResource(formatOption.labelRes),
                 style =
                   MaterialTheme.typography.bodyMedium.copy(
-                    fontFamily = FontFamily.Monospace,
-                    fontSize = 11.sp,
+                    fontFamily = FontFamily.Default,
+                    fontSize = 13.sp,
                   ),
                 fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
                 color =
@@ -252,75 +251,36 @@ private fun MainCircularCountdownSection(
     }
 
   val accentColor = MaterialTheme.colorScheme.tertiary
-  val outlineColor = MaterialTheme.colorScheme.outline
-  val subtleTickColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.25f)
+  val outlineColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.35f)
 
   BoxWithConstraints(
     modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
     contentAlignment = Alignment.Center,
   ) {
     val isCompactWidth = maxWidth < 340.dp
-    val outerDiameter = if (isCompactWidth) 228.dp else 268.dp
-    val progressRingDiameter = if (isCompactWidth) 204.dp else 240.dp
+    val outerDiameter = if (isCompactWidth) 230.dp else 268.dp
+    val progressRingDiameter = if (isCompactWidth) 210.dp else 244.dp
 
     val primaryFontSize =
       when {
         countdownFormat == CountdownDisplayFormat.DAYS_HOURS_MINUTES_SECONDS && isCompactWidth -> 30.sp
         countdownFormat == CountdownDisplayFormat.DAYS_HOURS_MINUTES_SECONDS -> 36.sp
-        isCompactWidth -> 17.sp
-        else -> 20.sp
+        isCompactWidth -> 18.sp
+        else -> 22.sp
       }
     val primaryLineHeight =
       when {
         countdownFormat == CountdownDisplayFormat.DAYS_HOURS_MINUTES_SECONDS && isCompactWidth -> 36.sp
         countdownFormat == CountdownDisplayFormat.DAYS_HOURS_MINUTES_SECONDS -> 42.sp
-        isCompactWidth -> 22.sp
-        else -> 26.sp
+        isCompactWidth -> 24.sp
+        else -> 28.sp
       }
 
     Box(
       modifier = Modifier.size(outerDiameter),
       contentAlignment = Alignment.Center,
     ) {
-      // Precision radial tick marks + inner concentric reference ring
-      Canvas(modifier = Modifier.fillMaxSize()) {
-        val center = Offset(size.width / 2f, size.height / 2f)
-        val outerRadius = size.minDimension / 2f
-        val tickInnerMajor = outerRadius - 6.dp.toPx()
-        val tickInnerMinor = outerRadius - 3.dp.toPx()
-        val innerReferenceRadius = outerRadius - 22.dp.toPx()
-
-        for (i in 0 until 60) {
-          val angleDeg = i * 6.0 - 90.0
-          val angleRad = Math.toRadians(angleDeg)
-          val isMajor = i % 5 == 0
-          val startRadius = if (isMajor) tickInnerMajor else tickInnerMinor
-          val start =
-            Offset(
-              x = center.x + (startRadius * cos(angleRad)).toFloat(),
-              y = center.y + (startRadius * sin(angleRad)).toFloat(),
-            )
-          val end =
-            Offset(
-              x = center.x + (outerRadius * cos(angleRad)).toFloat(),
-              y = center.y + (outerRadius * sin(angleRad)).toFloat(),
-            )
-          drawLine(
-            color = if (isMajor) subtleTickColor else outlineColor,
-            start = start,
-            end = end,
-            strokeWidth = if (isMajor) 1.dp.toPx() else 0.5.dp.toPx(),
-          )
-        }
-
-        drawCircle(
-          color = outlineColor.copy(alpha = 0.55f),
-          radius = innerReferenceRadius,
-          center = center,
-          style = Stroke(width = 0.5.dp.toPx()),
-        )
-      }
-
+      // Thin, minimal, elegant progress ring (clean Material 3 circle, no heavy radial ticks)
       CircularProgressIndicator(
         progress = { snapshot.remainingFraction },
         modifier =
@@ -328,8 +288,8 @@ private fun MainCircularCountdownSection(
             .testTag("countdown_progress_bar"),
         color = accentColor,
         trackColor = outlineColor,
-        strokeWidth = 2.dp,
-        strokeCap = StrokeCap.Butt,
+        strokeWidth = 2.5.dp,
+        strokeCap = StrokeCap.Round,
         gapSize = 0.dp,
       )
 
@@ -346,7 +306,7 @@ private fun MainCircularCountdownSection(
               fontWeight = FontWeight.Light,
               fontSize = primaryFontSize,
               lineHeight = primaryLineHeight,
-              letterSpacing = (-0.5).sp,
+              letterSpacing = 0.sp,
             ),
           color = MaterialTheme.colorScheme.onBackground,
           textAlign = TextAlign.Center,
@@ -362,7 +322,7 @@ private fun MainCircularCountdownSection(
               MaterialTheme.typography.bodyMedium.copy(
                 fontFamily = FontFamily.Monospace,
                 fontSize = if (isCompactWidth) 13.sp else 14.sp,
-                letterSpacing = 1.4.sp,
+                letterSpacing = 0.sp,
               ),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
@@ -371,24 +331,16 @@ private fun MainCircularCountdownSection(
           )
         }
 
-        Spacer(modifier = Modifier.height(14.dp))
-
-        Box(
-          modifier =
-            Modifier.width(24.dp)
-              .height(0.5.dp)
-              .background(MaterialTheme.colorScheme.outline),
-        )
-
         Spacer(modifier = Modifier.height(10.dp))
 
         Text(
           text = "${snapshot.remainingPercent}% LEFT",
           style =
-            MaterialTheme.typography.labelMedium.copy(
-              fontFamily = FontFamily.Monospace,
-              fontSize = 10.sp,
-              letterSpacing = 2.0.sp,
+            MaterialTheme.typography.labelSmall.copy(
+              fontFamily = FontFamily.Default,
+              fontWeight = FontWeight.SemiBold,
+              fontSize = 11.sp,
+              letterSpacing = 0.5.sp,
             ),
           color = accentColor,
           textAlign = TextAlign.Center,
@@ -408,23 +360,23 @@ private fun TodayRemainingSection(snapshot: HomeTimeSnapshot) {
       Modifier.fillMaxWidth()
         .border(
           width = 0.5.dp,
-          color = MaterialTheme.colorScheme.outline,
-          shape = RoundedCornerShape(2.dp),
+          color = MaterialTheme.colorScheme.outline.copy(alpha = 0.4f),
+          shape = RoundedCornerShape(16.dp),
         )
-        .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(2.dp))
+        .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(16.dp))
         .padding(horizontal = 20.dp, vertical = 18.dp)
         .testTag("today_remaining_section"),
     horizontalArrangement = Arrangement.SpaceBetween,
     verticalAlignment = Alignment.CenterVertically,
   ) {
-    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
       Text(
         text = stringResource(R.string.home_today_remaining_label),
         style =
-          MaterialTheme.typography.labelMedium.copy(
-            fontFamily = FontFamily.Monospace,
-            fontSize = 10.sp,
-            letterSpacing = 2.0.sp,
+          MaterialTheme.typography.labelSmall.copy(
+            fontFamily = FontFamily.Default,
+            fontSize = 11.sp,
+            fontWeight = FontWeight.SemiBold,
           ),
         color = MaterialTheme.colorScheme.onSurfaceVariant,
         modifier = Modifier.testTag("today_remaining_label"),
@@ -434,9 +386,8 @@ private fun TodayRemainingSection(snapshot: HomeTimeSnapshot) {
         style =
           MaterialTheme.typography.headlineMedium.copy(
             fontFamily = FontFamily.Monospace,
-            fontWeight = FontWeight.Light,
-            fontSize = 26.sp,
-            letterSpacing = 1.6.sp,
+            fontWeight = FontWeight.Normal,
+            fontSize = 24.sp,
           ),
         color = MaterialTheme.colorScheme.onBackground,
         modifier = Modifier.testTag("today_remaining_value"),
@@ -444,7 +395,7 @@ private fun TodayRemainingSection(snapshot: HomeTimeSnapshot) {
     }
 
     Box(
-      modifier = Modifier.size(34.dp),
+      modifier = Modifier.size(36.dp),
       contentAlignment = Alignment.Center,
     ) {
       CircularProgressIndicator(
@@ -454,14 +405,14 @@ private fun TodayRemainingSection(snapshot: HomeTimeSnapshot) {
             .semantics { contentDescription = progressDescription }
             .testTag("today_remaining_progress"),
         color = MaterialTheme.colorScheme.tertiary,
-        trackColor = MaterialTheme.colorScheme.outline,
-        strokeWidth = 1.5.dp,
-        strokeCap = StrokeCap.Butt,
+        trackColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.35f),
+        strokeWidth = 2.dp,
+        strokeCap = StrokeCap.Round,
         gapSize = 0.dp,
       )
       Box(
         modifier =
-          Modifier.size(3.dp)
+          Modifier.size(4.dp)
             .clip(CircleShape)
             .background(MaterialTheme.colorScheme.tertiary),
       )
@@ -476,10 +427,11 @@ private fun MonthCalendarSection(calendar: MonthCalendarModel) {
       Modifier.fillMaxWidth()
         .border(
           width = 0.5.dp,
-          color = MaterialTheme.colorScheme.outline,
-          shape = RoundedCornerShape(2.dp),
+          color = MaterialTheme.colorScheme.outline.copy(alpha = 0.4f),
+          shape = RoundedCornerShape(16.dp),
         )
-        .padding(horizontal = 16.dp, vertical = 16.dp)
+        .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(16.dp))
+        .padding(horizontal = 18.dp, vertical = 16.dp)
         .testTag("home_month_calendar"),
     verticalArrangement = Arrangement.spacedBy(12.dp),
   ) {
@@ -487,9 +439,9 @@ private fun MonthCalendarSection(calendar: MonthCalendarModel) {
       text = calendar.monthTitle,
       style =
         MaterialTheme.typography.labelMedium.copy(
-          fontFamily = FontFamily.Monospace,
-          fontSize = 10.sp,
-          letterSpacing = 2.0.sp,
+          fontFamily = FontFamily.Default,
+          fontWeight = FontWeight.SemiBold,
+          fontSize = 12.sp,
         ),
       color = MaterialTheme.colorScheme.onSurfaceVariant,
       modifier = Modifier.testTag("calendar_month_title"),
@@ -509,8 +461,9 @@ private fun MonthCalendarSection(calendar: MonthCalendarModel) {
             text = dayLabel,
             style =
               MaterialTheme.typography.labelSmall.copy(
-                fontFamily = FontFamily.Monospace,
-                fontSize = 9.sp,
+                fontFamily = FontFamily.Default,
+                fontSize = 11.sp,
+                fontWeight = FontWeight.Medium,
               ),
             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
             textAlign = TextAlign.Center,
@@ -534,7 +487,7 @@ private fun MonthCalendarSection(calendar: MonthCalendarModel) {
             val dayNumber = cellIndex - calendar.leadingEmptyCells + 1
 
             Box(
-              modifier = Modifier.weight(1f).height(30.dp),
+              modifier = Modifier.weight(1f).height(32.dp),
               contentAlignment = Alignment.Center,
             ) {
               if (dayNumber in 1..calendar.daysInMonth) {
@@ -542,14 +495,14 @@ private fun MonthCalendarSection(calendar: MonthCalendarModel) {
                 val isPast = dayNumber < calendar.currentDayOfMonth
                 val dayModifier =
                   if (isToday) {
-                    Modifier.size(26.dp)
+                    Modifier.size(28.dp)
                       .clip(CircleShape)
-                      .background(MaterialTheme.colorScheme.tertiary.copy(alpha = 0.12f))
-                      .border(1.dp, MaterialTheme.colorScheme.tertiary, CircleShape)
+                      .background(MaterialTheme.colorScheme.tertiary.copy(alpha = 0.15f))
+                      .border(1.5.dp, MaterialTheme.colorScheme.tertiary, CircleShape)
                       .semantics(mergeDescendants = true) {}
                       .testTag("calendar_today_cell")
                   } else {
-                    Modifier.size(26.dp)
+                    Modifier.size(28.dp)
                       .semantics(mergeDescendants = true) {}
                       .testTag("calendar_day_$dayNumber")
                   }
@@ -562,9 +515,9 @@ private fun MonthCalendarSection(calendar: MonthCalendarModel) {
                     text = dayNumber.toString(),
                     style =
                       MaterialTheme.typography.bodyMedium.copy(
-                        fontFamily = FontFamily.Monospace,
-                        fontSize = 11.sp,
-                        fontWeight = if (isToday) FontWeight.SemiBold else FontWeight.Normal,
+                        fontFamily = FontFamily.Default,
+                        fontSize = 12.sp,
+                        fontWeight = if (isToday) FontWeight.Bold else FontWeight.Normal,
                       ),
                     color =
                       when {

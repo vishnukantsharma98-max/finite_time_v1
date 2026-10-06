@@ -6,7 +6,6 @@ import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -21,11 +20,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -39,9 +38,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -64,8 +62,6 @@ import com.example.ui.theme.LightWastedAccent
 import com.example.ui.theme.LocalIsDarkTheme
 import java.time.Clock
 import java.util.TimeZone
-import kotlin.math.cos
-import kotlin.math.sin
 import kotlinx.coroutines.delay
 
 @Composable
@@ -86,7 +82,7 @@ fun FocusScreen(
   val timerState = remember(activeSession) { FocusTimeCalculator.resolveTimerState(activeSession) }
 
   var currentTimeMillis by
-    remember(clock, fixedNowMillis, activeSession) {
+    remember(clock, fixedNowMillis, activeSession, completedSegments) {
       mutableLongStateOf(fixedNowMillis ?: clock.millis())
     }
 
@@ -137,8 +133,7 @@ fun FocusScreen(
   val isDark = LocalIsDarkTheme.current
   val focusAccent = MaterialTheme.colorScheme.tertiary
   val stopAccent = if (isDark) DarkWastedAccent else LightWastedAccent
-  val outlineColor = MaterialTheme.colorScheme.outline
-  val subtleTickColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.25f)
+  val outlineColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.35f)
 
   val ringFraction =
     remember(timerState, elapsedMillis) {
@@ -147,10 +142,12 @@ fun FocusScreen(
         FocusTimerState.RUNNING,
         FocusTimerState.PAUSED -> {
           val modHour = (elapsedMillis % 3_600_000L).toFloat() / 3_600_000f
-          if (elapsedMillis > 0L && modHour == 0f) 1f else modHour.coerceIn(0.02f, 1f)
+          if (elapsedMillis > 0L && modHour == 0f) 1f else modHour.coerceIn(0.01f, 1f)
         }
       }
     }
+
+  val controlShape = RoundedCornerShape(16.dp)
 
   Column(
     modifier =
@@ -159,26 +156,29 @@ fun FocusScreen(
         .background(MaterialTheme.colorScheme.background)
         .testTag(AppDestination.FOCUS.screenTestTag)
         .verticalScroll(rememberScrollState())
-        .padding(horizontal = 24.dp, vertical = 12.dp),
+        .padding(horizontal = 24.dp, vertical = 16.dp),
     horizontalAlignment = Alignment.CenterHorizontally,
   ) {
     BoxWithConstraints(
       modifier = Modifier.fillMaxWidth().widthIn(max = 600.dp),
     ) {
       val isCompactWidth = maxWidth < 340.dp
-      val outerDiameter = if (isCompactWidth) 228.dp else 268.dp
-      val progressRingDiameter = if (isCompactWidth) 204.dp else 240.dp
-      val timerFontSize = if (isCompactWidth) 32.sp else 38.sp
-      val timerLineHeight = if (isCompactWidth) 38.sp else 44.sp
+      val outerDiameter = if (isCompactWidth) 230.dp else 260.dp
+      val progressRingDiameter = if (isCompactWidth) 210.dp else 240.dp
+      val timerFontSize = if (isCompactWidth) 34.sp else 38.sp
+      val timerLineHeight = if (isCompactWidth) 40.sp else 44.sp
 
       Column(
         modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(28.dp),
+        verticalArrangement = Arrangement.spacedBy(24.dp),
       ) {
         // Header: FOCUS
         Text(
           text = stringResource(R.string.focus_header),
-          style = MaterialTheme.typography.headlineMedium,
+          style = MaterialTheme.typography.headlineMedium.copy(
+            fontFamily = FontFamily.Default,
+            fontWeight = FontWeight.SemiBold,
+          ),
           color = MaterialTheme.colorScheme.onBackground,
           modifier = Modifier.testTag("screen_focus_header"),
         )
@@ -187,69 +187,27 @@ fun FocusScreen(
         Column(
           modifier = Modifier.fillMaxWidth(),
           horizontalAlignment = Alignment.CenterHorizontally,
-          verticalArrangement = Arrangement.spacedBy(26.dp),
+          verticalArrangement = Arrangement.spacedBy(24.dp),
         ) {
           Box(
             modifier = Modifier.size(outerDiameter),
             contentAlignment = Alignment.Center,
           ) {
-            val activeTicks = (ringFraction * 60f).toInt()
-            Canvas(modifier = Modifier.fillMaxSize()) {
-              val center = Offset(size.width / 2f, size.height / 2f)
-              val outerRadius = size.minDimension / 2f
-              val tickInnerMajor = outerRadius - 6.dp.toPx()
-              val tickInnerMinor = outerRadius - 3.dp.toPx()
-              val innerReferenceRadius = outerRadius - 22.dp.toPx()
-
-              for (i in 0 until 60) {
-                val angleDeg = i * 6.0 - 90.0
-                val angleRad = Math.toRadians(angleDeg)
-                val isMajor = i % 5 == 0
-                val isLit = timerState == FocusTimerState.RUNNING && i < activeTicks
-                val startRadius = if (isMajor) tickInnerMajor else tickInnerMinor
-                val start =
-                  Offset(
-                    x = center.x + (startRadius * cos(angleRad)).toFloat(),
-                    y = center.y + (startRadius * sin(angleRad)).toFloat(),
-                  )
-                val end =
-                  Offset(
-                    x = center.x + (outerRadius * cos(angleRad)).toFloat(),
-                    y = center.y + (outerRadius * sin(angleRad)).toFloat(),
-                  )
-                drawLine(
-                  color =
-                    when {
-                      isLit -> focusAccent.copy(alpha = 0.75f)
-                      isMajor -> subtleTickColor
-                      else -> outlineColor
-                    },
-                  start = start,
-                  end = end,
-                  strokeWidth = if (isMajor) 1.dp.toPx() else 0.5.dp.toPx(),
-                )
-              }
-
-              drawCircle(
-                color = outlineColor.copy(alpha = 0.55f),
-                radius = innerReferenceRadius,
-                center = center,
-                style = Stroke(width = 0.5.dp.toPx()),
-              )
-            }
-
+            // Minimal, thin, elegant circular progress ring without radial ticks
             CircularProgressIndicator(
               progress = { ringFraction },
               modifier = Modifier.size(progressRingDiameter).testTag("focus_circular_ring"),
               color =
                 if (timerState == FocusTimerState.RUNNING) {
                   focusAccent
+                } else if (timerState == FocusTimerState.PAUSED) {
+                  focusAccent.copy(alpha = 0.5f)
                 } else {
-                  MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
+                  MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)
                 },
               trackColor = outlineColor,
-              strokeWidth = 2.dp,
-              strokeCap = StrokeCap.Butt,
+              strokeWidth = 2.5.dp,
+              strokeCap = StrokeCap.Round,
               gapSize = 0.dp,
             )
 
@@ -266,7 +224,7 @@ fun FocusScreen(
                     fontWeight = FontWeight.Light,
                     fontSize = timerFontSize,
                     lineHeight = timerLineHeight,
-                    letterSpacing = 1.4.sp,
+                    letterSpacing = 0.sp,
                   ),
                 color = MaterialTheme.colorScheme.onBackground,
                 textAlign = TextAlign.Center,
@@ -274,29 +232,21 @@ fun FocusScreen(
                 modifier = Modifier.testTag("focus_timer_display"),
               )
 
-              Spacer(modifier = Modifier.height(8.dp))
+              Spacer(modifier = Modifier.height(6.dp))
 
               Text(
                 text = stringResource(R.string.focus_career_label),
                 style =
                   MaterialTheme.typography.bodyMedium.copy(
-                    letterSpacing = 1.2.sp,
+                    fontFamily = FontFamily.Default,
+                    fontWeight = FontWeight.Normal,
                   ),
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.testTag("focus_career_label"),
               )
 
-              Spacer(modifier = Modifier.height(12.dp))
-
-              Box(
-                modifier =
-                  Modifier.width(24.dp)
-                    .height(0.5.dp)
-                    .background(MaterialTheme.colorScheme.outline),
-              )
-
-              Spacer(modifier = Modifier.height(10.dp))
+              Spacer(modifier = Modifier.height(8.dp))
 
               val (statusText, statusColor) =
                 when (timerState) {
@@ -320,9 +270,9 @@ fun FocusScreen(
               Text(
                 text = statusText,
                 style =
-                  MaterialTheme.typography.labelMedium.copy(
-                    fontFamily = FontFamily.Monospace,
-                    letterSpacing = 1.8.sp,
+                  MaterialTheme.typography.labelSmall.copy(
+                    fontFamily = FontFamily.Default,
+                    fontWeight = FontWeight.Medium,
                   ),
                 color = statusColor,
                 textAlign = TextAlign.Center,
@@ -331,11 +281,10 @@ fun FocusScreen(
             }
           }
 
-          // Architectural Instrument Controls (minimum 48dp touch target, sharp 3dp corners)
-          val controlShape = RoundedCornerShape(3.dp)
+          // Modern Minimal Buttons with 16dp rounded corners
           when (timerState) {
             FocusTimerState.IDLE -> {
-              OutlinedButton(
+              Button(
                 onClick = {
                   if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                     val granted =
@@ -354,22 +303,22 @@ fun FocusScreen(
                   onStartFocus()
                 },
                 modifier =
-                  Modifier.defaultMinSize(minWidth = 156.dp, minHeight = 48.dp)
+                  Modifier.height(50.dp)
+                    .defaultMinSize(minWidth = 150.dp)
                     .testTag("focus_start_button"),
                 shape = controlShape,
-                border = BorderStroke(0.75.dp, focusAccent),
                 colors =
-                  ButtonDefaults.outlinedButtonColors(
-                    containerColor = focusAccent.copy(alpha = 0.08f),
-                    contentColor = focusAccent,
+                  ButtonDefaults.buttonColors(
+                    containerColor = focusAccent,
+                    contentColor = MaterialTheme.colorScheme.background,
                   ),
               ) {
                 Text(
                   text = stringResource(R.string.focus_action_start),
                   style =
                     MaterialTheme.typography.titleMedium.copy(
-                      fontFamily = FontFamily.Monospace,
-                      letterSpacing = 2.0.sp,
+                      fontFamily = FontFamily.Default,
+                      fontWeight = FontWeight.SemiBold,
                     ),
                 )
               }
@@ -382,10 +331,11 @@ fun FocusScreen(
                 OutlinedButton(
                   onClick = onPauseFocus,
                   modifier =
-                    Modifier.defaultMinSize(minWidth = 124.dp, minHeight = 48.dp)
+                    Modifier.height(50.dp)
+                      .defaultMinSize(minWidth = 124.dp)
                       .testTag("focus_pause_button"),
                   shape = controlShape,
-                  border = BorderStroke(0.75.dp, MaterialTheme.colorScheme.outline),
+                  border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
                   colors =
                     ButtonDefaults.outlinedButtonColors(
                       containerColor = MaterialTheme.colorScheme.surface,
@@ -396,31 +346,34 @@ fun FocusScreen(
                     text = stringResource(R.string.focus_action_pause),
                     style =
                       MaterialTheme.typography.titleMedium.copy(
-                        fontFamily = FontFamily.Monospace,
-                        letterSpacing = 1.8.sp,
+                        fontFamily = FontFamily.Default,
+                        fontWeight = FontWeight.Medium,
                       ),
                   )
                 }
 
-                OutlinedButton(
-                  onClick = onStopFocus,
+                Button(
+                  onClick = {
+                    currentTimeMillis = clock.millis()
+                    onStopFocus()
+                  },
                   modifier =
-                    Modifier.defaultMinSize(minWidth = 124.dp, minHeight = 48.dp)
+                    Modifier.height(50.dp)
+                      .defaultMinSize(minWidth = 124.dp)
                       .testTag("focus_stop_button"),
                   shape = controlShape,
-                  border = BorderStroke(0.75.dp, stopAccent.copy(alpha = 0.65f)),
                   colors =
-                    ButtonDefaults.outlinedButtonColors(
-                      containerColor = stopAccent.copy(alpha = 0.06f),
-                      contentColor = stopAccent,
+                    ButtonDefaults.buttonColors(
+                      containerColor = stopAccent,
+                      contentColor = Color.White,
                     ),
                 ) {
                   Text(
                     text = stringResource(R.string.focus_action_stop),
                     style =
                       MaterialTheme.typography.titleMedium.copy(
-                        fontFamily = FontFamily.Monospace,
-                        letterSpacing = 1.8.sp,
+                        fontFamily = FontFamily.Default,
+                        fontWeight = FontWeight.Medium,
                       ),
                   )
                 }
@@ -431,48 +384,51 @@ fun FocusScreen(
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
                 verticalAlignment = Alignment.CenterVertically,
               ) {
-                OutlinedButton(
+                Button(
                   onClick = onResumeFocus,
                   modifier =
-                    Modifier.defaultMinSize(minWidth = 124.dp, minHeight = 48.dp)
+                    Modifier.height(50.dp)
+                      .defaultMinSize(minWidth = 124.dp)
                       .testTag("focus_resume_button"),
                   shape = controlShape,
-                  border = BorderStroke(0.75.dp, focusAccent),
                   colors =
-                    ButtonDefaults.outlinedButtonColors(
-                      containerColor = focusAccent.copy(alpha = 0.08f),
-                      contentColor = focusAccent,
+                    ButtonDefaults.buttonColors(
+                      containerColor = focusAccent,
+                      contentColor = MaterialTheme.colorScheme.background,
                     ),
                 ) {
                   Text(
                     text = stringResource(R.string.focus_action_resume),
                     style =
                       MaterialTheme.typography.titleMedium.copy(
-                        fontFamily = FontFamily.Monospace,
-                        letterSpacing = 1.8.sp,
+                        fontFamily = FontFamily.Default,
+                        fontWeight = FontWeight.SemiBold,
                       ),
                   )
                 }
 
-                OutlinedButton(
-                  onClick = onStopFocus,
+                Button(
+                  onClick = {
+                    currentTimeMillis = clock.millis()
+                    onStopFocus()
+                  },
                   modifier =
-                    Modifier.defaultMinSize(minWidth = 124.dp, minHeight = 48.dp)
+                    Modifier.height(50.dp)
+                      .defaultMinSize(minWidth = 124.dp)
                       .testTag("focus_stop_button"),
                   shape = controlShape,
-                  border = BorderStroke(0.75.dp, stopAccent.copy(alpha = 0.65f)),
                   colors =
-                    ButtonDefaults.outlinedButtonColors(
-                      containerColor = stopAccent.copy(alpha = 0.06f),
-                      contentColor = stopAccent,
+                    ButtonDefaults.buttonColors(
+                      containerColor = stopAccent,
+                      contentColor = Color.White,
                     ),
                 ) {
                   Text(
                     text = stringResource(R.string.focus_action_stop),
                     style =
                       MaterialTheme.typography.titleMedium.copy(
-                        fontFamily = FontFamily.Monospace,
-                        letterSpacing = 1.8.sp,
+                        fontFamily = FontFamily.Default,
+                        fontWeight = FontWeight.Medium,
                       ),
                   )
                 }
@@ -481,16 +437,16 @@ fun FocusScreen(
           }
         }
 
-        // TODAY Focus Total Section — Framed Instrument Panel
+        // TODAY Focus Total Section — Modern Rounded Card
         Column(
           modifier =
             Modifier.fillMaxWidth()
               .border(
                 width = 0.5.dp,
-                color = MaterialTheme.colorScheme.outline,
-                shape = RoundedCornerShape(2.dp),
+                color = MaterialTheme.colorScheme.outline.copy(alpha = 0.4f),
+                shape = RoundedCornerShape(16.dp),
               )
-              .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(2.dp))
+              .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(16.dp))
               .padding(horizontal = 20.dp, vertical = 18.dp)
               .testTag("focus_today_section"),
           verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -499,9 +455,9 @@ fun FocusScreen(
             text = stringResource(R.string.focus_today_section_header),
             style =
               MaterialTheme.typography.labelMedium.copy(
-                fontFamily = FontFamily.Monospace,
-                fontSize = 10.sp,
-                letterSpacing = 2.0.sp,
+                fontFamily = FontFamily.Default,
+                fontWeight = FontWeight.SemiBold,
+                fontSize = 11.sp,
               ),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.testTag("focus_today_header"),
@@ -514,7 +470,9 @@ fun FocusScreen(
           ) {
             Text(
               text = stringResource(R.string.focus_today_label),
-              style = MaterialTheme.typography.bodyLarge,
+              style = MaterialTheme.typography.bodyLarge.copy(
+                fontFamily = FontFamily.Default,
+              ),
               color = MaterialTheme.colorScheme.onSurfaceVariant,
               modifier = Modifier.testTag("focus_today_label"),
             )
@@ -524,9 +482,8 @@ fun FocusScreen(
               style =
                 MaterialTheme.typography.headlineMedium.copy(
                   fontFamily = FontFamily.Monospace,
-                  fontWeight = FontWeight.Light,
-                  fontSize = 26.sp,
-                  letterSpacing = 1.2.sp,
+                  fontWeight = FontWeight.Normal,
+                  fontSize = 24.sp,
                 ),
               color = if (todayFocusMillis > 0L) focusAccent else MaterialTheme.colorScheme.onBackground,
               modifier = Modifier.testTag("focus_today_value"),

@@ -183,17 +183,20 @@ fun SystemScreen(
         .background(MaterialTheme.colorScheme.background)
         .testTag(AppDestination.SYSTEM.screenTestTag)
         .verticalScroll(rememberScrollState())
-        .padding(horizontal = 24.dp, vertical = 12.dp),
+        .padding(horizontal = 24.dp, vertical = 16.dp),
     horizontalAlignment = Alignment.CenterHorizontally,
   ) {
     Column(
       modifier = Modifier.fillMaxWidth().widthIn(max = 600.dp),
-      verticalArrangement = Arrangement.spacedBy(20.dp),
+      verticalArrangement = Arrangement.spacedBy(24.dp),
     ) {
       // Header: SYSTEM
       Text(
         text = stringResource(R.string.system_header),
-        style = MaterialTheme.typography.headlineMedium,
+        style = MaterialTheme.typography.headlineMedium.copy(
+          fontFamily = FontFamily.Default,
+          fontWeight = FontWeight.SemiBold,
+        ),
         color = MaterialTheme.colorScheme.onBackground,
         modifier = Modifier.testTag("screen_system_header"),
       )
@@ -266,9 +269,9 @@ private fun LevelUpBanner(
       text = stringResource(R.string.system_level_up_label),
       style =
         MaterialTheme.typography.labelMedium.copy(
-          fontFamily = FontFamily.Monospace,
+          fontFamily = FontFamily.Default,
           fontWeight = FontWeight.SemiBold,
-          letterSpacing = 2.0.sp,
+          letterSpacing = 0.5.sp,
         ),
       color = accentColor,
       modifier = Modifier.testTag("system_level_up_title"),
@@ -277,9 +280,9 @@ private fun LevelUpBanner(
       text = levelUpLabel,
       style =
         MaterialTheme.typography.titleMedium.copy(
-          fontFamily = FontFamily.Monospace,
+          fontFamily = FontFamily.Default,
           fontWeight = FontWeight.SemiBold,
-          letterSpacing = 1.8.sp,
+          letterSpacing = 0.sp,
         ),
       color = MaterialTheme.colorScheme.onBackground,
       modifier = Modifier.testTag("system_level_up_value"),
@@ -317,10 +320,10 @@ private fun LevelProgressSection(
         text = snapshot.currentLevelLabel,
         style =
           MaterialTheme.typography.displayMedium.copy(
-            fontFamily = FontFamily.Monospace,
-            fontWeight = FontWeight.Light,
-            fontSize = 34.sp,
-            letterSpacing = 2.2.sp,
+            fontFamily = FontFamily.Default,
+            fontWeight = FontWeight.SemiBold,
+            fontSize = 32.sp,
+            letterSpacing = 0.sp,
           ),
         color = MaterialTheme.colorScheme.onBackground,
         modifier = Modifier.testTag("system_level_text"),
@@ -331,8 +334,9 @@ private fun LevelProgressSection(
         style =
           MaterialTheme.typography.titleMedium.copy(
             fontFamily = FontFamily.Monospace,
-            fontWeight = FontWeight.Normal,
-            letterSpacing = 1.0.sp,
+            fontWeight = FontWeight.Medium,
+            fontSize = 15.sp,
+            letterSpacing = 0.sp,
           ),
         color = accentColor,
         modifier = Modifier.testTag("system_xp_progress_text"),
@@ -361,8 +365,8 @@ private fun LevelProgressSection(
         text = snapshot.xpToNextLevelFormatted,
         style =
           MaterialTheme.typography.labelMedium.copy(
-            fontFamily = FontFamily.Monospace,
-            letterSpacing = 1.4.sp,
+            fontFamily = FontFamily.Default,
+            letterSpacing = 0.sp,
           ),
         color = MaterialTheme.colorScheme.onSurfaceVariant,
         modifier = Modifier.testTag("system_xp_remaining_text"),
@@ -372,8 +376,8 @@ private fun LevelProgressSection(
         text = snapshot.remainingFocusEquivalentFormatted,
         style =
           MaterialTheme.typography.labelMedium.copy(
-            fontFamily = FontFamily.Monospace,
-            letterSpacing = 0.8.sp,
+            fontFamily = FontFamily.Default,
+            letterSpacing = 0.sp,
           ),
         color = MaterialTheme.colorScheme.onSurfaceVariant,
         modifier = Modifier.testTag("system_xp_focus_equivalent_text"),
@@ -412,8 +416,9 @@ private fun DailyQuestSection(
         text = stringResource(R.string.system_todays_quest_header),
         style =
           MaterialTheme.typography.labelMedium.copy(
-            fontFamily = FontFamily.Monospace,
-            letterSpacing = 2.0.sp,
+            fontFamily = FontFamily.Default,
+            fontWeight = FontWeight.SemiBold,
+            letterSpacing = 0.5.sp,
           ),
         color = MaterialTheme.colorScheme.onSurfaceVariant,
         modifier = Modifier.testTag("system_daily_quest_header"),
@@ -423,9 +428,9 @@ private fun DailyQuestSection(
         text = dailyQuest.statusText,
         style =
           MaterialTheme.typography.labelMedium.copy(
-            fontFamily = FontFamily.Monospace,
-            fontWeight = if (dailyQuest.isComplete) FontWeight.SemiBold else FontWeight.Normal,
-            letterSpacing = 1.4.sp,
+            fontFamily = FontFamily.Default,
+            fontWeight = if (dailyQuest.isComplete) FontWeight.SemiBold else FontWeight.Medium,
+            letterSpacing = 0.5.sp,
           ),
         color =
           if (dailyQuest.isComplete) {
@@ -446,9 +451,10 @@ private fun DailyQuestSection(
         text = "FOCUS ${dailyQuest.targetFormatted}",
         style =
           MaterialTheme.typography.titleMedium.copy(
-            fontFamily = FontFamily.Monospace,
+            fontFamily = FontFamily.Default,
             fontSize = 15.sp,
-            letterSpacing = 1.2.sp,
+            fontWeight = FontWeight.SemiBold,
+            letterSpacing = 0.sp,
           ),
         color = MaterialTheme.colorScheme.onBackground,
         modifier = Modifier.testTag("system_daily_quest_target"),
@@ -484,8 +490,8 @@ private fun DailyQuestSection(
         text = dailyQuest.remainingFormatted,
         style =
           MaterialTheme.typography.labelSmall.copy(
-            fontFamily = FontFamily.Monospace,
-            fontSize = 10.sp,
+            fontFamily = FontFamily.Default,
+            fontSize = 11.sp,
           ),
         color = MaterialTheme.colorScheme.onSurfaceVariant,
         modifier = Modifier.testTag("system_daily_quest_remaining"),
@@ -524,8 +530,9 @@ private fun WeeklyQuestSection(
         text = stringResource(R.string.system_weekly_quest_header),
         style =
           MaterialTheme.typography.labelMedium.copy(
-            fontFamily = FontFamily.Monospace,
-            letterSpacing = 2.0.sp,
+            fontFamily = FontFamily.Default,
+            fontWeight = FontWeight.SemiBold,
+            letterSpacing = 0.5.sp,
           ),
         color = MaterialTheme.colorScheme.onSurfaceVariant,
         modifier = Modifier.testTag("system_weekly_quest_header"),
@@ -535,9 +542,9 @@ private fun WeeklyQuestSection(
         text = weeklyQuest.statusText,
         style =
           MaterialTheme.typography.labelMedium.copy(
-            fontFamily = FontFamily.Monospace,
-            fontWeight = if (weeklyQuest.isComplete) FontWeight.SemiBold else FontWeight.Normal,
-            letterSpacing = 1.4.sp,
+            fontFamily = FontFamily.Default,
+            fontWeight = if (weeklyQuest.isComplete) FontWeight.SemiBold else FontWeight.Medium,
+            letterSpacing = 0.5.sp,
           ),
         color =
           if (weeklyQuest.isComplete) {
@@ -558,9 +565,10 @@ private fun WeeklyQuestSection(
         text = weeklyQuest.targetHeaderFormatted,
         style =
           MaterialTheme.typography.titleMedium.copy(
-            fontFamily = FontFamily.Monospace,
+            fontFamily = FontFamily.Default,
             fontSize = 15.sp,
-            letterSpacing = 1.2.sp,
+            fontWeight = FontWeight.SemiBold,
+            letterSpacing = 0.sp,
           ),
         color = MaterialTheme.colorScheme.onBackground,
         modifier = Modifier.testTag("system_weekly_quest_target"),
@@ -596,8 +604,8 @@ private fun WeeklyQuestSection(
         text = weeklyQuest.neededPerDayFormatted,
         style =
           MaterialTheme.typography.labelSmall.copy(
-            fontFamily = FontFamily.Monospace,
-            fontSize = 10.sp,
+            fontFamily = FontFamily.Default,
+            fontSize = 11.sp,
           ),
         color = MaterialTheme.colorScheme.onSurfaceVariant,
         modifier = Modifier.testTag("system_weekly_quest_needed"),
@@ -620,8 +628,9 @@ private fun AchievementsSection(
       text = stringResource(R.string.system_achievements_header),
       style =
         MaterialTheme.typography.labelMedium.copy(
-          fontFamily = FontFamily.Monospace,
-          letterSpacing = 2.0.sp,
+          fontFamily = FontFamily.Default,
+          fontWeight = FontWeight.SemiBold,
+          letterSpacing = 0.5.sp,
         ),
       color = MaterialTheme.colorScheme.onSurfaceVariant,
       modifier = Modifier.testTag("system_achievements_header"),
@@ -664,10 +673,10 @@ private fun AchievementsSection(
             text = milestone.displayTitle,
             style =
               MaterialTheme.typography.labelSmall.copy(
-                fontFamily = FontFamily.Monospace,
-                fontSize = 10.sp,
-                letterSpacing = 1.0.sp,
-                fontWeight = if (milestone.isUnlocked) FontWeight.SemiBold else FontWeight.Normal,
+                fontFamily = FontFamily.Default,
+                fontSize = 11.sp,
+                letterSpacing = 0.2.sp,
+                fontWeight = if (milestone.isUnlocked) FontWeight.SemiBold else FontWeight.Medium,
               ),
             color =
               if (milestone.isUnlocked) {
@@ -683,7 +692,7 @@ private fun AchievementsSection(
             style =
               MaterialTheme.typography.labelSmall.copy(
                 fontFamily = FontFamily.Monospace,
-                fontSize = 9.sp,
+                fontSize = 10.sp,
               ),
             color =
               if (milestone.isUnlocked) {

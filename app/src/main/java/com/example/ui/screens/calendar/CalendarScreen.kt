@@ -161,17 +161,21 @@ fun CalendarScreen(
         .background(MaterialTheme.colorScheme.background)
         .testTag(AppDestination.CALENDAR.screenTestTag)
         .verticalScroll(rememberScrollState())
-        .padding(horizontal = 24.dp, vertical = 12.dp),
+        .padding(horizontal = 24.dp, vertical = 16.dp),
     horizontalAlignment = Alignment.CenterHorizontally,
   ) {
     Column(
       modifier = Modifier.fillMaxWidth().widthIn(max = 600.dp),
-      verticalArrangement = Arrangement.spacedBy(20.dp),
+      verticalArrangement = Arrangement.spacedBy(24.dp),
     ) {
       // Header: CALENDAR
       Text(
         text = stringResource(R.string.calendar_header),
-        style = MaterialTheme.typography.headlineMedium,
+        style =
+          MaterialTheme.typography.headlineMedium.copy(
+            fontFamily = FontFamily.Default,
+            fontWeight = FontWeight.SemiBold,
+          ),
         color = MaterialTheme.colorScheme.onBackground,
         modifier = Modifier.testTag("screen_calendar_header"),
       )
@@ -260,8 +264,10 @@ private fun MonthNavigationRow(
       text = monthTitle,
       style =
         MaterialTheme.typography.titleMedium.copy(
-          fontFamily = FontFamily.Monospace,
-          letterSpacing = 2.0.sp,
+          fontFamily = FontFamily.Default,
+          fontWeight = FontWeight.SemiBold,
+          fontSize = 16.sp,
+          letterSpacing = 0.5.sp,
         ),
       color = MaterialTheme.colorScheme.onBackground,
       modifier = Modifier.testTag("calendar_screen_month_title"),
@@ -315,8 +321,9 @@ private fun CalendarMonthGrid(
             text = label,
             style =
               MaterialTheme.typography.labelSmall.copy(
-                fontFamily = FontFamily.Monospace,
-                fontSize = 9.sp,
+                fontFamily = FontFamily.Default,
+                fontSize = 11.sp,
+                fontWeight = FontWeight.Medium,
               ),
             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.65f),
             textAlign = TextAlign.Center,
@@ -418,8 +425,8 @@ private fun CalendarDayCell(
         text = dayModel.dayOfMonth.toString(),
         style =
           MaterialTheme.typography.bodyMedium.copy(
-            fontFamily = FontFamily.Monospace,
-            fontSize = 12.sp,
+            fontFamily = FontFamily.Default,
+            fontSize = 13.sp,
             fontWeight = if (isToday || isSelected) FontWeight.SemiBold else FontWeight.Normal,
           ),
         color = textColor,
@@ -482,8 +489,10 @@ private fun CalendarSelectedDayDetail(
         text = selectedDay.shortDateHeader,
         style =
           MaterialTheme.typography.titleMedium.copy(
-            fontFamily = FontFamily.Monospace,
-            letterSpacing = 2.0.sp,
+            fontFamily = FontFamily.Default,
+            fontWeight = FontWeight.SemiBold,
+            fontSize = 16.sp,
+            letterSpacing = 0.5.sp,
           ),
         color = MaterialTheme.colorScheme.onBackground,
         modifier = Modifier.testTag("calendar_selected_day_header"),
@@ -518,7 +527,7 @@ private fun CalendarSelectedDayDetail(
           text = stringResource(R.string.calendar_before_app_start),
           style =
             MaterialTheme.typography.bodyMedium.copy(
-              fontFamily = FontFamily.Monospace,
+              fontFamily = FontFamily.Default,
             ),
           color = MaterialTheme.colorScheme.onSurfaceVariant,
           modifier = Modifier.testTag("calendar_day_unavailable_status"),
@@ -529,7 +538,7 @@ private fun CalendarSelectedDayDetail(
           text = stringResource(R.string.calendar_future_date),
           style =
             MaterialTheme.typography.bodyMedium.copy(
-              fontFamily = FontFamily.Monospace,
+              fontFamily = FontFamily.Default,
             ),
           color = MaterialTheme.colorScheme.onSurfaceVariant,
           modifier = Modifier.testTag("calendar_day_future_status"),
@@ -559,9 +568,9 @@ private fun CalendarSelectedDayDetail(
                 style =
                   MaterialTheme.typography.headlineMedium.copy(
                     fontFamily = FontFamily.Monospace,
-                    fontWeight = FontWeight.Light,
+                    fontWeight = FontWeight.Normal,
                     fontSize = 24.sp,
-                    letterSpacing = 1.0.sp,
+                    letterSpacing = 0.sp,
                   ),
                 color = if (summary.focusMinutes > 0L) focusColor else MaterialTheme.colorScheme.onBackground,
                 modifier = Modifier.testTag("calendar_selected_focus_value"),
@@ -584,9 +593,9 @@ private fun CalendarSelectedDayDetail(
                 style =
                   MaterialTheme.typography.headlineMedium.copy(
                     fontFamily = FontFamily.Monospace,
-                    fontWeight = FontWeight.Light,
+                    fontWeight = FontWeight.Normal,
                     fontSize = 24.sp,
-                    letterSpacing = 1.0.sp,
+                    letterSpacing = 0.sp,
                   ),
                 color = wastedColor,
                 modifier = Modifier.testTag("calendar_selected_wasted_value"),

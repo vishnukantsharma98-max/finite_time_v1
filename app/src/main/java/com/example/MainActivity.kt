@@ -342,13 +342,13 @@ private fun MinimalBottomNavigation(
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
-              text = label.uppercase(),
+              text = label,
               style =
                 MaterialTheme.typography.labelSmall.copy(
-                  fontFamily = FontFamily.Monospace,
-                  fontSize = 9.sp,
-                  letterSpacing = 1.0.sp,
-                  fontWeight = if (isSelected) FontWeight.Medium else FontWeight.Normal,
+                  fontFamily = FontFamily.SansSerif,
+                  fontSize = 11.sp,
+                  letterSpacing = 0.sp,
+                  fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
                 ),
               color = itemColor,
               maxLines = 1,

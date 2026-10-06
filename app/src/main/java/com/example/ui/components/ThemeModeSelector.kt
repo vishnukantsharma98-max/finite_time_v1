@@ -39,8 +39,11 @@ fun ThemeModeSelector(
     modifier =
       modifier
         .testTag("theme_mode_selector")
-        .semantics { contentDescription = selectorDescription },
-    horizontalArrangement = Arrangement.spacedBy(2.dp),
+        .semantics { contentDescription = selectorDescription }
+        .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(16.dp))
+        .border(0.5.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(16.dp))
+        .padding(3.dp),
+    horizontalArrangement = Arrangement.spacedBy(4.dp),
     verticalAlignment = Alignment.CenterVertically,
   ) {
     ThemeOptionPill(
@@ -75,44 +78,38 @@ private fun ThemeOptionPill(
     if (isSelected) {
       MaterialTheme.colorScheme.onBackground
     } else {
-      MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.48f)
+      MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
     }
 
-  val pillShape = RoundedCornerShape(2.dp)
-  val borderModifier =
+  val pillShape = RoundedCornerShape(12.dp)
+  val backgroundModifier =
     if (isSelected) {
-      Modifier.border(0.5.dp, MaterialTheme.colorScheme.outline, pillShape)
-        .background(MaterialTheme.colorScheme.surface, pillShape)
+      Modifier.background(MaterialTheme.colorScheme.primaryContainer, pillShape)
     } else {
       Modifier
     }
 
   Box(
     modifier =
-      Modifier.defaultMinSize(minWidth = 48.dp, minHeight = 48.dp)
+      Modifier.defaultMinSize(minWidth = 52.dp, minHeight = 48.dp)
         .clip(pillShape)
+        .then(backgroundModifier)
         .clickable(role = Role.RadioButton, onClick = onClick)
         .semantics { selected = isSelected }
         .testTag(testTag)
-        .padding(vertical = 8.dp),
+        .padding(horizontal = 12.dp, vertical = 8.dp),
     contentAlignment = Alignment.Center,
   ) {
-    Box(
-      modifier = borderModifier.padding(horizontal = 7.dp, vertical = 3.dp),
-      contentAlignment = Alignment.Center,
-    ) {
-      Text(
-        text = label.uppercase(),
-        style =
-          MaterialTheme.typography.labelSmall.copy(
-            fontFamily = FontFamily.Monospace,
-            fontSize = 9.sp,
-            letterSpacing = 1.2.sp,
-            fontWeight = if (isSelected) FontWeight.Medium else FontWeight.Normal,
-          ),
-        color = textColor,
-        maxLines = 1,
-      )
-    }
+    Text(
+      text = label,
+      style =
+        MaterialTheme.typography.labelMedium.copy(
+          fontFamily = FontFamily.Default,
+          fontSize = 12.sp,
+          fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
+        ),
+      color = textColor,
+      maxLines = 1,
+    )
   }
 }

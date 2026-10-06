@@ -127,9 +127,11 @@ class MainViewModel(
       }
       viewModelScope.launch {
         repo.allSegmentsFlow.collect { segments ->
-          _completedSegments.value = segments
+          if (segments.size >= _completedSegments.value.size || _activeFocusSession.value == null) {
+            _completedSegments.value = segments
+          }
           val earliestActivity =
-            FocusTimeCalculator.findEarliestActivityMillis(segments, _activeFocusSession.value)
+            FocusTimeCalculator.findEarliestActivityMillis(_completedSegments.value, _activeFocusSession.value)
           if (earliestActivity != null && earliestActivity < _appFirstUseTimestampMillis.value) {
             _appFirstUseTimestampMillis.value = earliestActivity
           }
@@ -260,8 +262,9 @@ class MainViewModel(
       viewModelScope.launch {
         focusActionMutex.withLock {
           val paused = repo.pauseSession(nowMillis)
+          val allSegments = repo.getAllSegments()
+          _completedSegments.value = allSegments
           _activeFocusSession.value = paused
-          _completedSegments.value = repo.getAllSegments()
           indicatorController?.onFocusInactive()
         }
       }
@@ -324,8 +327,14 @@ class MainViewModel(
       viewModelScope.launch {
         focusActionMutex.withLock {
           repo.stopSession(nowMillis)
+          val allSegments = repo.getAllSegments()
+          _completedSegments.value = allSegments
           _activeFocusSession.value = null
-          _completedSegments.value = repo.getAllSegments()
+          val earliestActivity =
+            FocusTimeCalculator.findEarliestActivityMillis(allSegments, null)
+          if (earliestActivity != null && earliestActivity < _appFirstUseTimestampMillis.value) {
+            _appFirstUseTimestampMillis.value = earliestActivity
+          }
           indicatorController?.onFocusInactive()
         }
       }

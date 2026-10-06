@@ -10,66 +10,122 @@ val Typography =
   Typography(
     displayLarge =
       TextStyle(
-        fontFamily = FontFamily.Monospace,
+        fontFamily = FontFamily.SansSerif,
         fontWeight = FontWeight.Light,
-        fontSize = 42.sp,
-        lineHeight = 48.sp,
-        letterSpacing = (-0.5).sp,
+        fontSize = 40.sp,
+        lineHeight = 46.sp,
+        letterSpacing = 0.sp,
       ),
     displayMedium =
       TextStyle(
-        fontFamily = FontFamily.Monospace,
-        fontWeight = FontWeight.Light,
-        fontSize = 36.sp,
-        lineHeight = 42.sp,
-        letterSpacing = 2.0.sp,
+        fontFamily = FontFamily.SansSerif,
+        fontWeight = FontWeight.Normal,
+        fontSize = 32.sp,
+        lineHeight = 38.sp,
+        letterSpacing = 0.sp,
+      ),
+    displaySmall =
+      TextStyle(
+        fontFamily = FontFamily.SansSerif,
+        fontWeight = FontWeight.Normal,
+        fontSize = 28.sp,
+        lineHeight = 34.sp,
+        letterSpacing = 0.sp,
+      ),
+    headlineLarge =
+      TextStyle(
+        fontFamily = FontFamily.SansSerif,
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 24.sp,
+        lineHeight = 30.sp,
+        letterSpacing = 0.sp,
       ),
     headlineMedium =
       TextStyle(
         fontFamily = FontFamily.SansSerif,
-        fontWeight = FontWeight.Light,
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 20.sp,
+        lineHeight = 26.sp,
+        letterSpacing = 0.sp,
+      ),
+    headlineSmall =
+      TextStyle(
+        fontFamily = FontFamily.SansSerif,
+        fontWeight = FontWeight.SemiBold,
         fontSize = 18.sp,
         lineHeight = 24.sp,
-        letterSpacing = 2.8.sp,
+        letterSpacing = 0.sp,
+      ),
+    titleLarge =
+      TextStyle(
+        fontFamily = FontFamily.SansSerif,
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 17.sp,
+        lineHeight = 22.sp,
+        letterSpacing = 0.sp,
       ),
     titleMedium =
       TextStyle(
-        fontFamily = FontFamily.Monospace,
+        fontFamily = FontFamily.SansSerif,
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 15.sp,
+        lineHeight = 20.sp,
+        letterSpacing = 0.sp,
+      ),
+    titleSmall =
+      TextStyle(
+        fontFamily = FontFamily.SansSerif,
         fontWeight = FontWeight.Medium,
         fontSize = 13.sp,
         lineHeight = 18.sp,
-        letterSpacing = 1.6.sp,
+        letterSpacing = 0.sp,
       ),
     bodyLarge =
       TextStyle(
         fontFamily = FontFamily.SansSerif,
         fontWeight = FontWeight.Normal,
-        fontSize = 14.sp,
-        lineHeight = 20.sp,
-        letterSpacing = 0.4.sp,
+        fontSize = 15.sp,
+        lineHeight = 22.sp,
+        letterSpacing = 0.sp,
       ),
     bodyMedium =
       TextStyle(
         fontFamily = FontFamily.SansSerif,
         fontWeight = FontWeight.Normal,
-        fontSize = 12.sp,
+        fontSize = 13.sp,
         lineHeight = 18.sp,
-        letterSpacing = 0.4.sp,
+        letterSpacing = 0.sp,
+      ),
+    bodySmall =
+      TextStyle(
+        fontFamily = FontFamily.SansSerif,
+        fontWeight = FontWeight.Normal,
+        fontSize = 12.sp,
+        lineHeight = 16.sp,
+        letterSpacing = 0.sp,
+      ),
+    labelLarge =
+      TextStyle(
+        fontFamily = FontFamily.SansSerif,
+        fontWeight = FontWeight.Medium,
+        fontSize = 13.sp,
+        lineHeight = 18.sp,
+        letterSpacing = 0.sp,
       ),
     labelMedium =
       TextStyle(
-        fontFamily = FontFamily.Monospace,
+        fontFamily = FontFamily.SansSerif,
         fontWeight = FontWeight.Medium,
-        fontSize = 10.sp,
-        lineHeight = 14.sp,
-        letterSpacing = 1.8.sp,
+        fontSize = 11.sp,
+        lineHeight = 16.sp,
+        letterSpacing = 0.2.sp,
       ),
     labelSmall =
       TextStyle(
-        fontFamily = FontFamily.Monospace,
+        fontFamily = FontFamily.SansSerif,
         fontWeight = FontWeight.Normal,
-        fontSize = 9.sp,
-        lineHeight = 12.sp,
-        letterSpacing = 1.0.sp,
+        fontSize = 10.sp,
+        lineHeight = 14.sp,
+        letterSpacing = 0.sp,
       ),
   )
