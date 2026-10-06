@@ -35,15 +35,22 @@ fun ThemeModeSelector(
   modifier: Modifier = Modifier,
 ) {
   val selectorDescription = stringResource(R.string.cd_theme_selector)
+  val isDark = LocalIsDarkTheme.current
+  val containerShape = RoundedCornerShape(14.dp)
+
+  val containerBg = if (isDark) Color(0xFF131722) else Color(0xFFDFE6F0)
+  val borderColor = if (isDark) Color.White.copy(alpha = 0.08f) else Color.White.copy(alpha = 0.8f)
+
   Row(
     modifier =
       modifier
         .testTag("theme_mode_selector")
         .semantics { contentDescription = selectorDescription }
-        .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(16.dp))
-        .border(0.5.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(16.dp))
+        .clip(containerShape)
+        .background(containerBg, containerShape)
+        .border(0.75.dp, borderColor, containerShape)
         .padding(3.dp),
-    horizontalArrangement = Arrangement.spacedBy(4.dp),
+    horizontalArrangement = Arrangement.spacedBy(3.dp),
     verticalAlignment = Alignment.CenterVertically,
   ) {
     ThemeOptionPill(
@@ -74,39 +81,49 @@ private fun ThemeOptionPill(
   testTag: String,
   onClick: () -> Unit,
 ) {
+  val isDark = LocalIsDarkTheme.current
   val textColor =
-    if (isSelected) {
-      MaterialTheme.colorScheme.onBackground
-    } else {
-      MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+    when {
+      isSelected && isDark -> Color(0xFFF1F5F9)
+      isSelected -> Color(0xFF1E293B)
+      isDark -> Color(0xFF94A3B8)
+      else -> Color(0xFF64748B)
     }
 
-  val pillShape = RoundedCornerShape(12.dp)
+  val pillShape = RoundedCornerShape(11.dp)
   val backgroundModifier =
     if (isSelected) {
-      Modifier.background(MaterialTheme.colorScheme.primaryContainer, pillShape)
+      val selectedBg = if (isDark) Color(0xFF222B3A) else Color(0xFFF3F7FB)
+      Modifier
+        .background(selectedBg, pillShape)
+        .border(
+          0.75.dp,
+          if (isDark) Color.White.copy(alpha = 0.12f) else Color.White.copy(alpha = 0.95f),
+          pillShape,
+        )
     } else {
       Modifier
     }
 
   Box(
     modifier =
-      Modifier.defaultMinSize(minWidth = 52.dp, minHeight = 48.dp)
+      Modifier.defaultMinSize(minWidth = 48.dp, minHeight = 28.dp)
         .clip(pillShape)
         .then(backgroundModifier)
         .clickable(role = Role.RadioButton, onClick = onClick)
         .semantics { selected = isSelected }
         .testTag(testTag)
-        .padding(horizontal = 12.dp, vertical = 8.dp),
+        .padding(horizontal = 10.dp, vertical = 5.dp),
     contentAlignment = Alignment.Center,
   ) {
     Text(
       text = label,
       style =
-        MaterialTheme.typography.labelMedium.copy(
-          fontFamily = FontFamily.Default,
-          fontSize = 12.sp,
-          fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
+        MaterialTheme.typography.labelSmall.copy(
+          fontFamily = FontFamily.SansSerif,
+          fontSize = 11.sp,
+          letterSpacing = 0.sp,
+          fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium,
         ),
       color = textColor,
       maxLines = 1,

@@ -25,17 +25,27 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -46,6 +56,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.data.focus.AppDatabase
 import com.example.data.focus.FocusRepository
@@ -55,6 +66,9 @@ import com.example.data.preferences.ThemePreferencesRepository
 import com.example.service.FocusTimerService
 import com.example.ui.FocusSystemIndicatorController
 import com.example.ui.MainViewModel
+import com.example.ui.components.NeumorphicBottomNavigationBar
+import com.example.ui.components.NeumorphicGreen
+import com.example.ui.components.NeumorphicSurface
 import com.example.ui.components.ThemeModeSelector
 import com.example.ui.navigation.AppDestination
 import com.example.ui.screens.calendar.CalendarScreen
@@ -172,11 +186,12 @@ fun FiniteTimeApp(
 
   Scaffold(
     modifier = modifier.fillMaxSize().testTag("finite_time_root"),
-    containerColor = MaterialTheme.colorScheme.background,
+    containerColor = Color.Transparent,
     contentColor = MaterialTheme.colorScheme.onBackground,
     contentWindowInsets = WindowInsets(0, 0, 0, 0),
     topBar = {
       MinimalTopBar(
+        currentDestination = currentDestination,
         themeMode = themeMode,
         onThemeModeSelected = onThemeModeSelected,
       )
@@ -191,66 +206,68 @@ fun FiniteTimeApp(
     Box(
       modifier =
         Modifier.fillMaxSize()
+          .background(MaterialTheme.colorScheme.background)
           .padding(innerPadding),
     ) {
-      saveableStateHolder.SaveableStateProvider(currentDestination.route) {
-        when (currentDestination) {
-          AppDestination.HOME ->
-            HomeScreen(
-              countdownFormat = countdownFormat,
-              onCountdownFormatSelected = onCountdownFormatSelected,
-              appFirstUseTimestampMillis = appFirstUseTimestampMillis,
-              clock = clock,
-            )
-          AppDestination.FOCUS ->
-            FocusScreen(
-              activeSession = activeFocusSession,
-              completedSegments = completedSegments,
-              onStartFocus = onStartFocus,
-              onPauseFocus = onPauseFocus,
-              onResumeFocus = onResumeFocus,
-              onStopFocus = onStopFocus,
-              clock = clock,
-            )
-          AppDestination.SYSTEM ->
-            SystemScreen(
-              completedSegments = completedSegments,
-              activeSession = activeFocusSession,
-              appFirstUseTimestampMillis = appFirstUseTimestampMillis,
-              persistedQuestState = persistedSystemQuestState,
-              onPersistQuests = onPersistQuests,
-              onAcknowledgeLevelUp = onAcknowledgeLevelUp,
-              clock = clock,
-            )
-          AppDestination.STATS ->
-            StatsScreen(
-              completedSegments = completedSegments,
-              activeSession = activeFocusSession,
-              appFirstUseTimestampMillis = appFirstUseTimestampMillis,
-              clock = clock,
-            )
-          AppDestination.CALENDAR ->
-            CalendarScreen(
-              completedSegments = completedSegments,
-              activeSession = activeFocusSession,
-              appFirstUseTimestampMillis = appFirstUseTimestampMillis,
-              clock = clock,
-            )
+        saveableStateHolder.SaveableStateProvider(currentDestination.route) {
+          when (currentDestination) {
+            AppDestination.HOME ->
+              HomeScreen(
+                countdownFormat = countdownFormat,
+                onCountdownFormatSelected = onCountdownFormatSelected,
+                appFirstUseTimestampMillis = appFirstUseTimestampMillis,
+                clock = clock,
+              )
+            AppDestination.FOCUS ->
+              FocusScreen(
+                activeSession = activeFocusSession,
+                completedSegments = completedSegments,
+                onStartFocus = onStartFocus,
+                onPauseFocus = onPauseFocus,
+                onResumeFocus = onResumeFocus,
+                onStopFocus = onStopFocus,
+                clock = clock,
+              )
+            AppDestination.SYSTEM ->
+              SystemScreen(
+                completedSegments = completedSegments,
+                activeSession = activeFocusSession,
+                appFirstUseTimestampMillis = appFirstUseTimestampMillis,
+                persistedQuestState = persistedSystemQuestState,
+                onPersistQuests = onPersistQuests,
+                onAcknowledgeLevelUp = onAcknowledgeLevelUp,
+                clock = clock,
+              )
+            AppDestination.STATS ->
+              StatsScreen(
+                completedSegments = completedSegments,
+                activeSession = activeFocusSession,
+                appFirstUseTimestampMillis = appFirstUseTimestampMillis,
+                clock = clock,
+              )
+            AppDestination.CALENDAR ->
+              CalendarScreen(
+                completedSegments = completedSegments,
+                activeSession = activeFocusSession,
+                appFirstUseTimestampMillis = appFirstUseTimestampMillis,
+                clock = clock,
+              )
+          }
         }
       }
-    }
   }
 }
 
 @Composable
 private fun MinimalTopBar(
+  currentDestination: AppDestination,
   themeMode: ThemeMode,
   onThemeModeSelected: (ThemeMode) -> Unit,
   modifier: Modifier = Modifier,
 ) {
   Surface(
     modifier = modifier.fillMaxWidth(),
-    color = MaterialTheme.colorScheme.background,
+    color = Color.Transparent,
   ) {
     Box(
       modifier = Modifier.fillMaxWidth().statusBarsPadding(),
@@ -260,10 +277,33 @@ private fun MinimalTopBar(
         modifier =
           Modifier.fillMaxWidth()
             .widthIn(max = 600.dp)
-            .padding(horizontal = 24.dp),
-        horizontalArrangement = Arrangement.End,
+            .padding(horizontal = 20.dp, vertical = 8.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
       ) {
+        Row(
+          verticalAlignment = Alignment.CenterVertically,
+          horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+          Box(
+            modifier =
+              Modifier.size(8.dp)
+                .clip(CircleShape)
+                .background(NeumorphicGreen),
+          )
+          Text(
+            text = "FINITE TIME",
+            style =
+              MaterialTheme.typography.labelMedium.copy(
+                fontFamily = FontFamily.SansSerif,
+                fontWeight = FontWeight.SemiBold,
+                fontSize = 12.sp,
+                letterSpacing = 1.sp,
+              ),
+            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.85f),
+          )
+        }
+
         ThemeModeSelector(
           selectedMode = themeMode,
           onModeSelected = onThemeModeSelected,
@@ -279,83 +319,16 @@ private fun MinimalBottomNavigation(
   onDestinationSelected: (AppDestination) -> Unit,
   modifier: Modifier = Modifier,
 ) {
-  Surface(
-    modifier = modifier.fillMaxWidth(),
-    color = MaterialTheme.colorScheme.background,
-    tonalElevation = 0.dp,
+  Box(
+    modifier =
+      modifier
+        .fillMaxWidth()
+        .testTag("bottom_navigation_bar"),
+    contentAlignment = Alignment.Center,
   ) {
-    Column(
-      modifier =
-        Modifier.fillMaxWidth()
-          .navigationBarsPadding()
-          .testTag("bottom_navigation_bar"),
-      horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-      HorizontalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outline)
-      Row(
-        modifier =
-          Modifier.fillMaxWidth()
-            .widthIn(max = 600.dp)
-            .padding(horizontal = 8.dp),
-        horizontalArrangement = Arrangement.SpaceEvenly,
-        verticalAlignment = Alignment.CenterVertically,
-      ) {
-        AppDestination.entries.forEach { destination ->
-          val isSelected = destination == currentDestination
-          val label = stringResource(destination.labelRes)
-          val itemColor =
-            if (isSelected) {
-              MaterialTheme.colorScheme.onBackground
-            } else {
-              MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.52f)
-            }
-
-          Column(
-            modifier =
-              Modifier.weight(1f)
-                .defaultMinSize(minWidth = 48.dp, minHeight = 56.dp)
-                .clickable(
-                  role = Role.Tab,
-                  onClick = { onDestinationSelected(destination) },
-                )
-                .semantics(mergeDescendants = true) { selected = isSelected }
-                .testTag(destination.tabTestTag)
-                .padding(vertical = 8.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
-          ) {
-            Box(
-              modifier =
-                Modifier.width(16.dp)
-                  .height(1.5.dp)
-                  .background(
-                    if (isSelected) MaterialTheme.colorScheme.tertiary else Color.Transparent
-                  ),
-            )
-            Spacer(modifier = Modifier.height(6.dp))
-            Icon(
-              imageVector =
-                if (isSelected) destination.selectedIcon else destination.unselectedIcon,
-              contentDescription = label,
-              tint = itemColor,
-              modifier = Modifier.size(18.dp),
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-              text = label,
-              style =
-                MaterialTheme.typography.labelSmall.copy(
-                  fontFamily = FontFamily.SansSerif,
-                  fontSize = 11.sp,
-                  letterSpacing = 0.sp,
-                  fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
-                ),
-              color = itemColor,
-              maxLines = 1,
-            )
-          }
-        }
-      }
-    }
+    NeumorphicBottomNavigationBar(
+      currentDestination = currentDestination,
+      onDestinationSelected = onDestinationSelected,
+    )
   }
 }

@@ -1587,4 +1587,18 @@ class ExampleUnitTest {
     assertEquals(65_700L, tokyoSystemSnap.totalXp)
     assertEquals(65_700L, nySystemSnap.totalXp)
   }
+
+  @Test
+  fun `Indian number grouping formats correctly across magnitude thresholds`() {
+    assertEquals("0", com.example.ui.util.IndianNumberFormatter.format(0L))
+    assertEquals("70", com.example.ui.util.IndianNumberFormatter.format(70L))
+    assertEquals("633", com.example.ui.util.IndianNumberFormatter.format(633L))
+    assertEquals("999", com.example.ui.util.IndianNumberFormatter.format(999L))
+    assertEquals("1,000", com.example.ui.util.IndianNumberFormatter.format(1000L))
+    assertEquals("2,450", com.example.ui.util.IndianNumberFormatter.format(2450L))
+    assertEquals("10,000", com.example.ui.util.IndianNumberFormatter.format(10000L))
+    assertEquals("1,00,000", com.example.ui.util.IndianNumberFormatter.format(100000L))
+    assertEquals("12,22,333", com.example.ui.util.IndianNumberFormatter.format(1222333L))
+    assertEquals("1,23,45,678", com.example.ui.util.IndianNumberFormatter.format(12345678L))
+  }
 }

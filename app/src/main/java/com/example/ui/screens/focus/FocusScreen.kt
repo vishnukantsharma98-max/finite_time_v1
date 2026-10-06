@@ -33,6 +33,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.draw.clip
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -56,6 +57,8 @@ import com.example.R
 import com.example.data.focus.FocusSegmentEntity
 import com.example.data.focus.FocusSessionEntity
 import com.example.data.focus.FocusTimerState
+import com.example.ui.components.NeumorphicGreen
+import com.example.ui.components.NeumorphicSurface
 import com.example.ui.navigation.AppDestination
 import com.example.ui.theme.DarkWastedAccent
 import com.example.ui.theme.LightWastedAccent
@@ -147,7 +150,7 @@ fun FocusScreen(
       }
     }
 
-  val controlShape = RoundedCornerShape(16.dp)
+  val controlShape = RoundedCornerShape(12.dp)
 
   Column(
     modifier =
@@ -156,28 +159,30 @@ fun FocusScreen(
         .background(MaterialTheme.colorScheme.background)
         .testTag(AppDestination.FOCUS.screenTestTag)
         .verticalScroll(rememberScrollState())
-        .padding(horizontal = 24.dp, vertical = 16.dp),
+        .padding(horizontal = 20.dp, vertical = 12.dp),
     horizontalAlignment = Alignment.CenterHorizontally,
   ) {
     BoxWithConstraints(
       modifier = Modifier.fillMaxWidth().widthIn(max = 600.dp),
     ) {
       val isCompactWidth = maxWidth < 340.dp
-      val outerDiameter = if (isCompactWidth) 230.dp else 260.dp
-      val progressRingDiameter = if (isCompactWidth) 210.dp else 240.dp
+      val outerDiameter = if (isCompactWidth) 190.dp else 210.dp
+      val progressRingDiameter = if (isCompactWidth) 175.dp else 195.dp
       val timerFontSize = if (isCompactWidth) 34.sp else 38.sp
       val timerLineHeight = if (isCompactWidth) 40.sp else 44.sp
 
       Column(
         modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(24.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
       ) {
         // Header: FOCUS
         Text(
           text = stringResource(R.string.focus_header),
           style = MaterialTheme.typography.headlineMedium.copy(
-            fontFamily = FontFamily.Default,
-            fontWeight = FontWeight.SemiBold,
+            fontFamily = FontFamily.SansSerif,
+            fontWeight = FontWeight.Bold,
+            fontSize = 22.sp,
+            letterSpacing = 0.sp,
           ),
           color = MaterialTheme.colorScheme.onBackground,
           modifier = Modifier.testTag("screen_focus_header"),
@@ -187,101 +192,116 @@ fun FocusScreen(
         Column(
           modifier = Modifier.fillMaxWidth(),
           horizontalAlignment = Alignment.CenterHorizontally,
-          verticalArrangement = Arrangement.spacedBy(24.dp),
+          verticalArrangement = Arrangement.spacedBy(18.dp),
         ) {
-          Box(
+          val isDarkTheme = LocalIsDarkTheme.current
+          val trackBg = if (isDarkTheme) Color(0xFF18202D) else Color(0xFFDCE5F1)
+
+          NeumorphicSurface(
+            shape = CircleShape,
+            elevation = 8.dp,
             modifier = Modifier.size(outerDiameter),
-            contentAlignment = Alignment.Center,
           ) {
-            // Minimal, thin, elegant circular progress ring without radial ticks
-            CircularProgressIndicator(
-              progress = { ringFraction },
-              modifier = Modifier.size(progressRingDiameter).testTag("focus_circular_ring"),
-              color =
-                if (timerState == FocusTimerState.RUNNING) {
-                  focusAccent
-                } else if (timerState == FocusTimerState.PAUSED) {
-                  focusAccent.copy(alpha = 0.5f)
-                } else {
-                  MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)
-                },
-              trackColor = outlineColor,
-              strokeWidth = 2.5.dp,
-              strokeCap = StrokeCap.Round,
-              gapSize = 0.dp,
-            )
-
-            Column(
-              modifier = Modifier.padding(horizontal = 20.dp),
-              horizontalAlignment = Alignment.CenterHorizontally,
-              verticalArrangement = Arrangement.Center,
+            Box(
+              modifier = Modifier.fillMaxSize(),
+              contentAlignment = Alignment.Center,
             ) {
-              Text(
-                text = formattedTimer,
-                style =
-                  MaterialTheme.typography.displayLarge.copy(
-                    fontFamily = FontFamily.Monospace,
-                    fontWeight = FontWeight.Light,
-                    fontSize = timerFontSize,
-                    lineHeight = timerLineHeight,
-                    letterSpacing = 0.sp,
-                  ),
-                color = MaterialTheme.colorScheme.onBackground,
-                textAlign = TextAlign.Center,
-                maxLines = 1,
-                modifier = Modifier.testTag("focus_timer_display"),
+              CircularProgressIndicator(
+                progress = { ringFraction },
+                modifier = Modifier.size(progressRingDiameter).testTag("focus_circular_ring"),
+                color =
+                  if (timerState == FocusTimerState.RUNNING) {
+                    NeumorphicGreen
+                  } else if (timerState == FocusTimerState.PAUSED) {
+                    NeumorphicGreen.copy(alpha = 0.5f)
+                  } else {
+                    trackBg
+                  },
+                trackColor = trackBg,
+                strokeWidth = if (isCompactWidth) 8.dp else 11.dp,
+                strokeCap = StrokeCap.Round,
+                gapSize = 0.dp,
               )
 
-              Spacer(modifier = Modifier.height(6.dp))
+              Column(
+                modifier = Modifier.padding(horizontal = 16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
+              ) {
+                Text(
+                  text = formattedTimer,
+                  style =
+                    MaterialTheme.typography.displayLarge.copy(
+                      fontFamily = FontFamily.SansSerif,
+                      fontFeatureSettings = "tnum",
+                      fontWeight = FontWeight.Bold,
+                      fontSize = timerFontSize,
+                      lineHeight = timerLineHeight,
+                      letterSpacing = 0.sp,
+                    ),
+                  color = MaterialTheme.colorScheme.onBackground,
+                  textAlign = TextAlign.Center,
+                  maxLines = 1,
+                  modifier = Modifier.testTag("focus_timer_display"),
+                )
 
-              Text(
-                text = stringResource(R.string.focus_career_label),
-                style =
-                  MaterialTheme.typography.bodyMedium.copy(
-                    fontFamily = FontFamily.Default,
-                    fontWeight = FontWeight.Normal,
-                  ),
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.testTag("focus_career_label"),
-              )
+                Spacer(modifier = Modifier.height(4.dp))
 
-              Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                  text = stringResource(R.string.focus_career_label),
+                  style =
+                    MaterialTheme.typography.bodyMedium.copy(
+                      fontFamily = FontFamily.SansSerif,
+                      fontWeight = FontWeight.Medium,
+                      fontSize = 13.sp,
+                      letterSpacing = 0.sp,
+                    ),
+                  color = MaterialTheme.colorScheme.onSurfaceVariant,
+                  textAlign = TextAlign.Center,
+                  modifier = Modifier.testTag("focus_career_label"),
+                )
 
-              val (statusText, statusColor) =
-                when (timerState) {
-                  FocusTimerState.RUNNING ->
-                    Pair(
-                      stringResource(R.string.focus_status_running),
-                      focusAccent,
-                    )
-                  FocusTimerState.PAUSED ->
-                    Pair(
-                      stringResource(R.string.focus_status_paused),
-                      MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                  FocusTimerState.IDLE ->
-                    Pair(
-                      stringResource(R.string.focus_status_idle),
-                      MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.65f),
-                    )
-                }
+                Spacer(modifier = Modifier.height(6.dp))
 
-              Text(
-                text = statusText,
-                style =
-                  MaterialTheme.typography.labelSmall.copy(
-                    fontFamily = FontFamily.Default,
-                    fontWeight = FontWeight.Medium,
-                  ),
-                color = statusColor,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.testTag("focus_status_text"),
-              )
+                val (statusText, statusColor) =
+                  when (timerState) {
+                    FocusTimerState.RUNNING ->
+                      Pair(
+                        stringResource(R.string.focus_status_running),
+                        NeumorphicGreen,
+                      )
+                    FocusTimerState.PAUSED ->
+                      Pair(
+                        stringResource(R.string.focus_status_paused),
+                        MaterialTheme.colorScheme.onSurfaceVariant,
+                      )
+                    FocusTimerState.IDLE ->
+                      Pair(
+                        stringResource(R.string.focus_status_idle),
+                        MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                      )
+                  }
+
+                Text(
+                  text = statusText,
+                  style =
+                    MaterialTheme.typography.labelSmall.copy(
+                      fontFamily = FontFamily.SansSerif,
+                      fontWeight = FontWeight.SemiBold,
+                      fontSize = 12.sp,
+                      letterSpacing = 0.sp,
+                    ),
+                  color = statusColor,
+                  textAlign = TextAlign.Center,
+                  modifier = Modifier.testTag("focus_status_text"),
+                )
+              }
             }
           }
 
-          // Modern Minimal Buttons with 16dp rounded corners
+          // Modern Action Controls
+          val buttonShape = RoundedCornerShape(18.dp)
+
           when (timerState) {
             FocusTimerState.IDLE -> {
               Button(
@@ -304,50 +324,56 @@ fun FocusScreen(
                 },
                 modifier =
                   Modifier.height(50.dp)
-                    .defaultMinSize(minWidth = 150.dp)
+                    .defaultMinSize(minWidth = 160.dp)
                     .testTag("focus_start_button"),
-                shape = controlShape,
+                shape = buttonShape,
                 colors =
                   ButtonDefaults.buttonColors(
-                    containerColor = focusAccent,
-                    contentColor = MaterialTheme.colorScheme.background,
+                    containerColor = NeumorphicGreen,
+                    contentColor = Color.White,
                   ),
+                elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp),
               ) {
                 Text(
                   text = stringResource(R.string.focus_action_start),
                   style =
                     MaterialTheme.typography.titleMedium.copy(
-                      fontFamily = FontFamily.Default,
-                      fontWeight = FontWeight.SemiBold,
+                      fontFamily = FontFamily.SansSerif,
+                      fontWeight = FontWeight.Bold,
+                      fontSize = 15.sp,
+                      letterSpacing = 0.sp,
                     ),
                 )
               }
             }
             FocusTimerState.RUNNING -> {
               Row(
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                horizontalArrangement = Arrangement.spacedBy(14.dp),
                 verticalAlignment = Alignment.CenterVertically,
               ) {
                 OutlinedButton(
                   onClick = onPauseFocus,
                   modifier =
                     Modifier.height(50.dp)
-                      .defaultMinSize(minWidth = 124.dp)
+                      .defaultMinSize(minWidth = 125.dp)
                       .testTag("focus_pause_button"),
-                  shape = controlShape,
-                  border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+                  shape = buttonShape,
+                  border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)),
                   colors =
                     ButtonDefaults.outlinedButtonColors(
                       containerColor = MaterialTheme.colorScheme.surface,
                       contentColor = MaterialTheme.colorScheme.onBackground,
                     ),
+                  elevation = ButtonDefaults.buttonElevation(defaultElevation = 3.dp),
                 ) {
                   Text(
                     text = stringResource(R.string.focus_action_pause),
                     style =
                       MaterialTheme.typography.titleMedium.copy(
-                        fontFamily = FontFamily.Default,
-                        fontWeight = FontWeight.Medium,
+                        fontFamily = FontFamily.SansSerif,
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 14.sp,
+                        letterSpacing = 0.sp,
                       ),
                   )
                 }
@@ -359,21 +385,24 @@ fun FocusScreen(
                   },
                   modifier =
                     Modifier.height(50.dp)
-                      .defaultMinSize(minWidth = 124.dp)
+                      .defaultMinSize(minWidth = 125.dp)
                       .testTag("focus_stop_button"),
-                  shape = controlShape,
+                  shape = buttonShape,
                   colors =
                     ButtonDefaults.buttonColors(
                       containerColor = stopAccent,
                       contentColor = Color.White,
                     ),
+                  elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp),
                 ) {
                   Text(
                     text = stringResource(R.string.focus_action_stop),
                     style =
                       MaterialTheme.typography.titleMedium.copy(
-                        fontFamily = FontFamily.Default,
-                        fontWeight = FontWeight.Medium,
+                        fontFamily = FontFamily.SansSerif,
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 14.sp,
+                        letterSpacing = 0.sp,
                       ),
                   )
                 }
@@ -381,28 +410,31 @@ fun FocusScreen(
             }
             FocusTimerState.PAUSED -> {
               Row(
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                horizontalArrangement = Arrangement.spacedBy(14.dp),
                 verticalAlignment = Alignment.CenterVertically,
               ) {
                 Button(
                   onClick = onResumeFocus,
                   modifier =
                     Modifier.height(50.dp)
-                      .defaultMinSize(minWidth = 124.dp)
+                      .defaultMinSize(minWidth = 125.dp)
                       .testTag("focus_resume_button"),
-                  shape = controlShape,
+                  shape = buttonShape,
                   colors =
                     ButtonDefaults.buttonColors(
-                      containerColor = focusAccent,
-                      contentColor = MaterialTheme.colorScheme.background,
+                      containerColor = NeumorphicGreen,
+                      contentColor = Color.White,
                     ),
+                  elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp),
                 ) {
                   Text(
                     text = stringResource(R.string.focus_action_resume),
                     style =
                       MaterialTheme.typography.titleMedium.copy(
-                        fontFamily = FontFamily.Default,
-                        fontWeight = FontWeight.SemiBold,
+                        fontFamily = FontFamily.SansSerif,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 14.sp,
+                        letterSpacing = 0.sp,
                       ),
                   )
                 }
@@ -414,21 +446,24 @@ fun FocusScreen(
                   },
                   modifier =
                     Modifier.height(50.dp)
-                      .defaultMinSize(minWidth = 124.dp)
+                      .defaultMinSize(minWidth = 125.dp)
                       .testTag("focus_stop_button"),
-                  shape = controlShape,
+                  shape = buttonShape,
                   colors =
                     ButtonDefaults.buttonColors(
                       containerColor = stopAccent,
                       contentColor = Color.White,
                     ),
+                  elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp),
                 ) {
                   Text(
                     text = stringResource(R.string.focus_action_stop),
                     style =
                       MaterialTheme.typography.titleMedium.copy(
-                        fontFamily = FontFamily.Default,
-                        fontWeight = FontWeight.Medium,
+                        fontFamily = FontFamily.SansSerif,
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 14.sp,
+                        letterSpacing = 0.sp,
                       ),
                   )
                 }
@@ -437,57 +472,62 @@ fun FocusScreen(
           }
         }
 
-        // TODAY Focus Total Section — Modern Rounded Card
-        Column(
+        // TODAY Focus Total Section — Modern Compact Container
+        NeumorphicSurface(
+          shape = RoundedCornerShape(22.dp),
+          elevation = 5.dp,
           modifier =
             Modifier.fillMaxWidth()
-              .border(
-                width = 0.5.dp,
-                color = MaterialTheme.colorScheme.outline.copy(alpha = 0.4f),
-                shape = RoundedCornerShape(16.dp),
-              )
-              .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(16.dp))
-              .padding(horizontal = 20.dp, vertical = 18.dp)
               .testTag("focus_today_section"),
-          verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-          Text(
-            text = stringResource(R.string.focus_today_section_header),
-            style =
-              MaterialTheme.typography.labelMedium.copy(
-                fontFamily = FontFamily.Default,
-                fontWeight = FontWeight.SemiBold,
-                fontSize = 11.sp,
-              ),
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.testTag("focus_today_header"),
-          )
-
-          Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
+          Column(
+            modifier = Modifier.padding(horizontal = 20.dp, vertical = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp),
           ) {
             Text(
-              text = stringResource(R.string.focus_today_label),
-              style = MaterialTheme.typography.bodyLarge.copy(
-                fontFamily = FontFamily.Default,
-              ),
+              text = stringResource(R.string.focus_today_section_header),
+              style =
+                MaterialTheme.typography.labelSmall.copy(
+                  fontFamily = FontFamily.SansSerif,
+                  fontWeight = FontWeight.Bold,
+                  fontSize = 11.sp,
+                  letterSpacing = 0.sp,
+                ),
               color = MaterialTheme.colorScheme.onSurfaceVariant,
-              modifier = Modifier.testTag("focus_today_label"),
+              modifier = Modifier.testTag("focus_today_header"),
             )
 
-            Text(
-              text = formattedTodayFocus,
-              style =
-                MaterialTheme.typography.headlineMedium.copy(
-                  fontFamily = FontFamily.Monospace,
-                  fontWeight = FontWeight.Normal,
-                  fontSize = 24.sp,
+            Row(
+              modifier = Modifier.fillMaxWidth(),
+              horizontalArrangement = Arrangement.SpaceBetween,
+              verticalAlignment = Alignment.CenterVertically,
+            ) {
+              Text(
+                text = stringResource(R.string.focus_today_label),
+                style = MaterialTheme.typography.bodyLarge.copy(
+                  fontFamily = FontFamily.SansSerif,
+                  fontSize = 14.sp,
+                  fontWeight = FontWeight.Medium,
+                  letterSpacing = 0.sp,
                 ),
-              color = if (todayFocusMillis > 0L) focusAccent else MaterialTheme.colorScheme.onBackground,
-              modifier = Modifier.testTag("focus_today_value"),
-            )
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.testTag("focus_today_label"),
+              )
+
+              Text(
+                text = formattedTodayFocus,
+                style =
+                  MaterialTheme.typography.headlineMedium.copy(
+                    fontFamily = FontFamily.SansSerif,
+                    fontFeatureSettings = "tnum",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 22.sp,
+                    letterSpacing = 0.sp,
+                  ),
+                color = if (todayFocusMillis > 0L) NeumorphicGreen else MaterialTheme.colorScheme.onBackground,
+                modifier = Modifier.testTag("focus_today_value"),
+              )
+            }
           }
         }
       }

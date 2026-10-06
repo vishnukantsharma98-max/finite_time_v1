@@ -29,6 +29,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -50,41 +51,26 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.example.R
 import com.example.data.focus.FocusSegmentEntity
 import com.example.data.focus.FocusSessionEntity
+import com.example.ui.components.NeumorphicGreen
+import com.example.ui.components.NeumorphicSurface
 import com.example.ui.navigation.AppDestination
 import com.example.ui.screens.focus.FocusTimeCalculator
+import com.example.ui.theme.LocalIsDarkTheme
 import java.time.Clock
 import java.util.TimeZone
 import kotlinx.coroutines.delay
 
 /**
- * Draws a whisper-quiet architectural system panel frame:
- * 0.5dp border with subtle 6dp precision corner accent ticks.
+ * Modern card container frame for system panels:
+ * 16dp rounded corners with subtle 1dp border over AMOLED black.
  */
-private fun Modifier.systemPanelFrame(
+private fun Modifier.modernPanelFrame(
   borderColor: Color,
-  cornerAccentColor: Color,
   surfaceColor: Color,
 ): Modifier =
-  this.background(surfaceColor, RoundedCornerShape(2.dp))
-    .border(0.5.dp, borderColor, RoundedCornerShape(2.dp))
-    .drawBehind {
-      val tickLen = 6.dp.toPx()
-      val stroke = 1.dp.toPx()
-      val w = size.width
-      val h = size.height
-      // Top-left corner
-      drawLine(cornerAccentColor, Offset(0f, 0f), Offset(tickLen, 0f), stroke)
-      drawLine(cornerAccentColor, Offset(0f, 0f), Offset(0f, tickLen), stroke)
-      // Top-right corner
-      drawLine(cornerAccentColor, Offset(w, 0f), Offset(w - tickLen, 0f), stroke)
-      drawLine(cornerAccentColor, Offset(w, 0f), Offset(w, tickLen), stroke)
-      // Bottom-left corner
-      drawLine(cornerAccentColor, Offset(0f, h), Offset(tickLen, h), stroke)
-      drawLine(cornerAccentColor, Offset(0f, h), Offset(0f, h - tickLen), stroke)
-      // Bottom-right corner
-      drawLine(cornerAccentColor, Offset(w, h), Offset(w - tickLen, h), stroke)
-      drawLine(cornerAccentColor, Offset(w, h), Offset(w, h - tickLen), stroke)
-    }
+  this.clip(RoundedCornerShape(16.dp))
+    .background(surfaceColor, RoundedCornerShape(16.dp))
+    .border(1.dp, borderColor, RoundedCornerShape(16.dp))
 
 @Composable
 fun SystemScreen(
@@ -183,19 +169,21 @@ fun SystemScreen(
         .background(MaterialTheme.colorScheme.background)
         .testTag(AppDestination.SYSTEM.screenTestTag)
         .verticalScroll(rememberScrollState())
-        .padding(horizontal = 24.dp, vertical = 16.dp),
+        .padding(horizontal = 20.dp, vertical = 12.dp),
     horizontalAlignment = Alignment.CenterHorizontally,
   ) {
     Column(
       modifier = Modifier.fillMaxWidth().widthIn(max = 600.dp),
-      verticalArrangement = Arrangement.spacedBy(24.dp),
+      verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
       // Header: SYSTEM
       Text(
         text = stringResource(R.string.system_header),
         style = MaterialTheme.typography.headlineMedium.copy(
-          fontFamily = FontFamily.Default,
-          fontWeight = FontWeight.SemiBold,
+          fontFamily = FontFamily.SansSerif,
+          fontWeight = FontWeight.Bold,
+          fontSize = 22.sp,
+          letterSpacing = 0.sp,
         ),
         color = MaterialTheme.colorScheme.onBackground,
         modifier = Modifier.testTag("screen_system_header"),
@@ -247,10 +235,9 @@ private fun LevelUpBanner(
     modifier =
       Modifier.fillMaxWidth()
         .defaultMinSize(minHeight = 48.dp)
-        .systemPanelFrame(
-          borderColor = accentColor.copy(alpha = 0.7f),
-          cornerAccentColor = accentColor,
-          surfaceColor = accentColor.copy(alpha = 0.06f),
+        .modernPanelFrame(
+          borderColor = accentColor.copy(alpha = 0.6f),
+          surfaceColor = accentColor.copy(alpha = 0.08f),
         )
         .pointerInput(onAcknowledge) { detectTapGestures { onAcknowledge() } }
         .semantics(mergeDescendants = false) {
@@ -260,7 +247,7 @@ private fun LevelUpBanner(
             true
           }
         }
-        .padding(horizontal = 18.dp, vertical = 14.dp)
+        .padding(horizontal = 16.dp, vertical = 12.dp)
         .testTag("system_level_up_banner"),
     horizontalArrangement = Arrangement.SpaceBetween,
     verticalAlignment = Alignment.CenterVertically,
@@ -268,10 +255,11 @@ private fun LevelUpBanner(
     Text(
       text = stringResource(R.string.system_level_up_label),
       style =
-        MaterialTheme.typography.labelMedium.copy(
-          fontFamily = FontFamily.Default,
+        MaterialTheme.typography.labelSmall.copy(
+          fontFamily = FontFamily.SansSerif,
           fontWeight = FontWeight.SemiBold,
-          letterSpacing = 0.5.sp,
+          fontSize = 11.sp,
+          letterSpacing = 0.sp,
         ),
       color = accentColor,
       modifier = Modifier.testTag("system_level_up_title"),
@@ -280,8 +268,9 @@ private fun LevelUpBanner(
       text = levelUpLabel,
       style =
         MaterialTheme.typography.titleMedium.copy(
-          fontFamily = FontFamily.Default,
-          fontWeight = FontWeight.SemiBold,
+          fontFamily = FontFamily.SansSerif,
+          fontWeight = FontWeight.Bold,
+          fontSize = 14.sp,
           letterSpacing = 0.sp,
         ),
       color = MaterialTheme.colorScheme.onBackground,
@@ -296,92 +285,96 @@ private fun LevelProgressSection(
   snapshot: SystemProgressSnapshot,
   accentColor: Color,
 ) {
-  val outlineColor = MaterialTheme.colorScheme.outline
-  val surfaceColor = MaterialTheme.colorScheme.surface
+  val isDark = LocalIsDarkTheme.current
+  val trackBg = if (isDark) Color(0xFF18202D) else Color(0xFFDCE5F1)
 
-  Column(
-    modifier =
-      Modifier.fillMaxWidth()
-        .systemPanelFrame(
-          borderColor = outlineColor,
-          cornerAccentColor = accentColor.copy(alpha = 0.65f),
-          surfaceColor = surfaceColor,
-        )
-        .padding(horizontal = 20.dp, vertical = 20.dp)
-        .testTag("system_level_section"),
-    verticalArrangement = Arrangement.spacedBy(12.dp),
+  NeumorphicSurface(
+    shape = RoundedCornerShape(22.dp),
+    elevation = 6.dp,
+    modifier = Modifier.fillMaxWidth().testTag("system_level_section"),
   ) {
-    Row(
-      modifier = Modifier.fillMaxWidth(),
-      horizontalArrangement = Arrangement.SpaceBetween,
-      verticalAlignment = Alignment.Bottom,
+    Column(
+      modifier = Modifier.padding(horizontal = 20.dp, vertical = 18.dp),
+      verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
-      Text(
-        text = snapshot.currentLevelLabel,
-        style =
-          MaterialTheme.typography.displayMedium.copy(
-            fontFamily = FontFamily.Default,
-            fontWeight = FontWeight.SemiBold,
-            fontSize = 32.sp,
-            letterSpacing = 0.sp,
-          ),
-        color = MaterialTheme.colorScheme.onBackground,
-        modifier = Modifier.testTag("system_level_text"),
+      Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.Bottom,
+      ) {
+        Text(
+          text = snapshot.currentLevelLabel,
+          style =
+            MaterialTheme.typography.displayMedium.copy(
+              fontFamily = FontFamily.SansSerif,
+              fontWeight = FontWeight.Bold,
+              fontSize = 28.sp,
+              letterSpacing = 0.sp,
+            ),
+          color = MaterialTheme.colorScheme.onBackground,
+          modifier = Modifier.testTag("system_level_text"),
+        )
+
+        Text(
+          text = snapshot.xpProgressFormatted,
+          style =
+            MaterialTheme.typography.titleMedium.copy(
+              fontFamily = FontFamily.SansSerif,
+              fontFeatureSettings = "tnum",
+              fontWeight = FontWeight.Bold,
+              fontSize = 15.sp,
+              letterSpacing = 0.sp,
+            ),
+          color = NeumorphicGreen,
+          modifier = Modifier.testTag("system_xp_progress_text"),
+        )
+      }
+
+      LinearProgressIndicator(
+        progress = { snapshot.levelProgressFraction },
+        modifier =
+          Modifier.fillMaxWidth()
+            .height(5.dp)
+            .clip(RoundedCornerShape(3.dp))
+            .testTag("system_level_progress_bar"),
+        color = NeumorphicGreen,
+        trackColor = trackBg,
+        strokeCap = StrokeCap.Round,
+        gapSize = 0.dp,
+        drawStopIndicator = {},
       )
 
-      Text(
-        text = snapshot.xpProgressFormatted,
-        style =
-          MaterialTheme.typography.titleMedium.copy(
-            fontFamily = FontFamily.Monospace,
-            fontWeight = FontWeight.Medium,
-            fontSize = 15.sp,
-            letterSpacing = 0.sp,
-          ),
-        color = accentColor,
-        modifier = Modifier.testTag("system_xp_progress_text"),
-      )
-    }
+      FlowRow(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalArrangement = Arrangement.spacedBy(2.dp),
+      ) {
+        Text(
+          text = snapshot.xpToNextLevelFormatted,
+          style =
+            MaterialTheme.typography.labelSmall.copy(
+              fontFamily = FontFamily.SansSerif,
+              fontSize = 11.sp,
+              fontWeight = FontWeight.Medium,
+              letterSpacing = 0.sp,
+            ),
+          color = MaterialTheme.colorScheme.onSurfaceVariant,
+          modifier = Modifier.testTag("system_xp_remaining_text"),
+        )
 
-    LinearProgressIndicator(
-      progress = { snapshot.levelProgressFraction },
-      modifier =
-        Modifier.fillMaxWidth()
-          .height(2.dp)
-          .testTag("system_level_progress_bar"),
-      color = accentColor,
-      trackColor = outlineColor,
-      strokeCap = StrokeCap.Butt,
-      gapSize = 0.dp,
-      drawStopIndicator = {},
-    )
-
-    FlowRow(
-      modifier = Modifier.fillMaxWidth(),
-      horizontalArrangement = Arrangement.SpaceBetween,
-      verticalArrangement = Arrangement.spacedBy(4.dp),
-    ) {
-      Text(
-        text = snapshot.xpToNextLevelFormatted,
-        style =
-          MaterialTheme.typography.labelMedium.copy(
-            fontFamily = FontFamily.Default,
-            letterSpacing = 0.sp,
-          ),
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
-        modifier = Modifier.testTag("system_xp_remaining_text"),
-      )
-
-      Text(
-        text = snapshot.remainingFocusEquivalentFormatted,
-        style =
-          MaterialTheme.typography.labelMedium.copy(
-            fontFamily = FontFamily.Default,
-            letterSpacing = 0.sp,
-          ),
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
-        modifier = Modifier.testTag("system_xp_focus_equivalent_text"),
-      )
+        Text(
+          text = snapshot.remainingFocusEquivalentFormatted,
+          style =
+            MaterialTheme.typography.labelSmall.copy(
+              fontFamily = FontFamily.SansSerif,
+              fontSize = 11.sp,
+              fontWeight = FontWeight.Medium,
+              letterSpacing = 0.sp,
+            ),
+          color = MaterialTheme.colorScheme.onSurfaceVariant,
+          modifier = Modifier.testTag("system_xp_focus_equivalent_text"),
+        )
+      }
     }
   }
 }
@@ -391,111 +384,115 @@ private fun DailyQuestSection(
   dailyQuest: DailyQuestState,
   accentColor: Color,
 ) {
-  val outlineColor = MaterialTheme.colorScheme.outline
-  val surfaceColor = MaterialTheme.colorScheme.surface
+  val isDark = LocalIsDarkTheme.current
+  val trackBg = if (isDark) Color(0xFF18202D) else Color(0xFFDCE5F1)
 
-  Column(
-    modifier =
-      Modifier.fillMaxWidth()
-        .systemPanelFrame(
-          borderColor = if (dailyQuest.isComplete) accentColor.copy(alpha = 0.5f) else outlineColor,
-          cornerAccentColor =
-            if (dailyQuest.isComplete) accentColor else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f),
-          surfaceColor = surfaceColor,
-        )
-        .padding(horizontal = 20.dp, vertical = 18.dp)
-        .testTag("system_daily_quest_section"),
-    verticalArrangement = Arrangement.spacedBy(10.dp),
+  NeumorphicSurface(
+    shape = RoundedCornerShape(20.dp),
+    elevation = 4.dp,
+    tintGreen = dailyQuest.isComplete,
+    modifier = Modifier.fillMaxWidth().testTag("system_daily_quest_section"),
   ) {
-    Row(
-      modifier = Modifier.fillMaxWidth(),
-      horizontalArrangement = Arrangement.SpaceBetween,
-      verticalAlignment = Alignment.CenterVertically,
+    Column(
+      modifier = Modifier.padding(horizontal = 20.dp, vertical = 16.dp),
+      verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-      Text(
-        text = stringResource(R.string.system_todays_quest_header),
-        style =
-          MaterialTheme.typography.labelMedium.copy(
-            fontFamily = FontFamily.Default,
-            fontWeight = FontWeight.SemiBold,
-            letterSpacing = 0.5.sp,
-          ),
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
-        modifier = Modifier.testTag("system_daily_quest_header"),
+      Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
+      ) {
+        Text(
+          text = stringResource(R.string.system_todays_quest_header),
+          style =
+            MaterialTheme.typography.labelSmall.copy(
+              fontFamily = FontFamily.SansSerif,
+              fontWeight = FontWeight.Bold,
+              fontSize = 11.sp,
+              letterSpacing = 0.sp,
+            ),
+          color = MaterialTheme.colorScheme.onSurfaceVariant,
+          modifier = Modifier.testTag("system_daily_quest_header"),
+        )
+
+        Text(
+          text = dailyQuest.statusText,
+          style =
+            MaterialTheme.typography.labelSmall.copy(
+              fontFamily = FontFamily.SansSerif,
+              fontWeight = if (dailyQuest.isComplete) FontWeight.Bold else FontWeight.Medium,
+              fontSize = 11.sp,
+              letterSpacing = 0.sp,
+            ),
+          color =
+            if (dailyQuest.isComplete) {
+              NeumorphicGreen
+            } else {
+              MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.75f)
+            },
+          modifier = Modifier.testTag("system_daily_quest_status"),
+        )
+      }
+
+      Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.Bottom,
+      ) {
+        Text(
+          text = "FOCUS ${dailyQuest.targetFormatted}",
+          style =
+            MaterialTheme.typography.titleMedium.copy(
+              fontFamily = FontFamily.SansSerif,
+              fontSize = 14.sp,
+              fontWeight = FontWeight.SemiBold,
+              letterSpacing = 0.sp,
+            ),
+          color = MaterialTheme.colorScheme.onBackground,
+          modifier = Modifier.testTag("system_daily_quest_target"),
+        )
+
+        Text(
+          text = dailyQuest.progressSlashFormatted,
+          style =
+            MaterialTheme.typography.bodyMedium.copy(
+              fontFamily = FontFamily.SansSerif,
+              fontFeatureSettings = "tnum",
+              fontSize = 13.sp,
+              letterSpacing = 0.sp,
+            ),
+          color = if (dailyQuest.isComplete) NeumorphicGreen else MaterialTheme.colorScheme.onBackground,
+          modifier = Modifier.testTag("system_daily_quest_progress"),
+        )
+      }
+
+      LinearProgressIndicator(
+        progress = { dailyQuest.progressFraction },
+        modifier =
+          Modifier.fillMaxWidth()
+            .height(4.dp)
+            .clip(RoundedCornerShape(2.dp))
+            .testTag("system_daily_quest_progress_bar"),
+        color = NeumorphicGreen,
+        trackColor = trackBg,
+        strokeCap = StrokeCap.Round,
+        gapSize = 0.dp,
+        drawStopIndicator = {},
       )
 
-      Text(
-        text = dailyQuest.statusText,
-        style =
-          MaterialTheme.typography.labelMedium.copy(
-            fontFamily = FontFamily.Default,
-            fontWeight = if (dailyQuest.isComplete) FontWeight.SemiBold else FontWeight.Medium,
-            letterSpacing = 0.5.sp,
-          ),
-        color =
-          if (dailyQuest.isComplete) {
-            accentColor
-          } else {
-            MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
-          },
-        modifier = Modifier.testTag("system_daily_quest_status"),
-      )
-    }
-
-    Row(
-      modifier = Modifier.fillMaxWidth(),
-      horizontalArrangement = Arrangement.SpaceBetween,
-      verticalAlignment = Alignment.Bottom,
-    ) {
-      Text(
-        text = "FOCUS ${dailyQuest.targetFormatted}",
-        style =
-          MaterialTheme.typography.titleMedium.copy(
-            fontFamily = FontFamily.Default,
-            fontSize = 15.sp,
-            fontWeight = FontWeight.SemiBold,
-            letterSpacing = 0.sp,
-          ),
-        color = MaterialTheme.colorScheme.onBackground,
-        modifier = Modifier.testTag("system_daily_quest_target"),
-      )
-
-      Text(
-        text = dailyQuest.progressSlashFormatted,
-        style =
-          MaterialTheme.typography.bodyMedium.copy(
-            fontFamily = FontFamily.Monospace,
-            fontSize = 13.sp,
-          ),
-        color = if (dailyQuest.isComplete) accentColor else MaterialTheme.colorScheme.onBackground,
-        modifier = Modifier.testTag("system_daily_quest_progress"),
-      )
-    }
-
-    LinearProgressIndicator(
-      progress = { dailyQuest.progressFraction },
-      modifier =
-        Modifier.fillMaxWidth()
-          .height(1.5.dp)
-          .testTag("system_daily_quest_progress_bar"),
-      color = accentColor,
-      trackColor = outlineColor,
-      strokeCap = StrokeCap.Butt,
-      gapSize = 0.dp,
-      drawStopIndicator = {},
-    )
-
-    if (!dailyQuest.isComplete) {
-      Text(
-        text = dailyQuest.remainingFormatted,
-        style =
-          MaterialTheme.typography.labelSmall.copy(
-            fontFamily = FontFamily.Default,
-            fontSize = 11.sp,
-          ),
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
-        modifier = Modifier.testTag("system_daily_quest_remaining"),
-      )
+      if (!dailyQuest.isComplete) {
+        Text(
+          text = dailyQuest.remainingFormatted,
+          style =
+            MaterialTheme.typography.labelSmall.copy(
+              fontFamily = FontFamily.SansSerif,
+              fontSize = 11.sp,
+              letterSpacing = 0.sp,
+            ),
+          color = MaterialTheme.colorScheme.onSurfaceVariant,
+          modifier = Modifier.testTag("system_daily_quest_remaining"),
+        )
+      }
     }
   }
 }
@@ -505,111 +502,115 @@ private fun WeeklyQuestSection(
   weeklyQuest: WeeklyQuestState,
   accentColor: Color,
 ) {
-  val outlineColor = MaterialTheme.colorScheme.outline
-  val surfaceColor = MaterialTheme.colorScheme.surface
+  val isDark = LocalIsDarkTheme.current
+  val trackBg = if (isDark) Color(0xFF18202D) else Color(0xFFDCE5F1)
 
-  Column(
-    modifier =
-      Modifier.fillMaxWidth()
-        .systemPanelFrame(
-          borderColor = if (weeklyQuest.isComplete) accentColor.copy(alpha = 0.5f) else outlineColor,
-          cornerAccentColor =
-            if (weeklyQuest.isComplete) accentColor else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f),
-          surfaceColor = surfaceColor,
-        )
-        .padding(horizontal = 20.dp, vertical = 18.dp)
-        .testTag("system_weekly_quest_section"),
-    verticalArrangement = Arrangement.spacedBy(10.dp),
+  NeumorphicSurface(
+    shape = RoundedCornerShape(20.dp),
+    elevation = 4.dp,
+    tintGreen = weeklyQuest.isComplete,
+    modifier = Modifier.fillMaxWidth().testTag("system_weekly_quest_section"),
   ) {
-    Row(
-      modifier = Modifier.fillMaxWidth(),
-      horizontalArrangement = Arrangement.SpaceBetween,
-      verticalAlignment = Alignment.CenterVertically,
+    Column(
+      modifier = Modifier.padding(horizontal = 20.dp, vertical = 16.dp),
+      verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-      Text(
-        text = stringResource(R.string.system_weekly_quest_header),
-        style =
-          MaterialTheme.typography.labelMedium.copy(
-            fontFamily = FontFamily.Default,
-            fontWeight = FontWeight.SemiBold,
-            letterSpacing = 0.5.sp,
-          ),
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
-        modifier = Modifier.testTag("system_weekly_quest_header"),
+      Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
+      ) {
+        Text(
+          text = stringResource(R.string.system_weekly_quest_header),
+          style =
+            MaterialTheme.typography.labelSmall.copy(
+              fontFamily = FontFamily.SansSerif,
+              fontWeight = FontWeight.Bold,
+              fontSize = 11.sp,
+              letterSpacing = 0.sp,
+            ),
+          color = MaterialTheme.colorScheme.onSurfaceVariant,
+          modifier = Modifier.testTag("system_weekly_quest_header"),
+        )
+
+        Text(
+          text = weeklyQuest.statusText,
+          style =
+            MaterialTheme.typography.labelSmall.copy(
+              fontFamily = FontFamily.SansSerif,
+              fontWeight = if (weeklyQuest.isComplete) FontWeight.Bold else FontWeight.Medium,
+              fontSize = 11.sp,
+              letterSpacing = 0.sp,
+            ),
+          color =
+            if (weeklyQuest.isComplete) {
+              NeumorphicGreen
+            } else {
+              MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.75f)
+            },
+          modifier = Modifier.testTag("system_weekly_quest_status"),
+        )
+      }
+
+      Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.Bottom,
+      ) {
+        Text(
+          text = weeklyQuest.targetHeaderFormatted,
+          style =
+            MaterialTheme.typography.titleMedium.copy(
+              fontFamily = FontFamily.SansSerif,
+              fontSize = 14.sp,
+              fontWeight = FontWeight.SemiBold,
+              letterSpacing = 0.sp,
+            ),
+          color = MaterialTheme.colorScheme.onBackground,
+          modifier = Modifier.testTag("system_weekly_quest_target"),
+        )
+
+        Text(
+          text = weeklyQuest.currentPerDayFormatted,
+          style =
+            MaterialTheme.typography.bodyMedium.copy(
+              fontFamily = FontFamily.SansSerif,
+              fontFeatureSettings = "tnum",
+              fontSize = 13.sp,
+              letterSpacing = 0.sp,
+            ),
+          color = if (weeklyQuest.isComplete) NeumorphicGreen else MaterialTheme.colorScheme.onBackground,
+          modifier = Modifier.testTag("system_weekly_quest_current"),
+        )
+      }
+
+      LinearProgressIndicator(
+        progress = { weeklyQuest.progressFraction },
+        modifier =
+          Modifier.fillMaxWidth()
+            .height(4.dp)
+            .clip(RoundedCornerShape(2.dp))
+            .testTag("system_weekly_quest_progress_bar"),
+        color = NeumorphicGreen,
+        trackColor = trackBg,
+        strokeCap = StrokeCap.Round,
+        gapSize = 0.dp,
+        drawStopIndicator = {},
       )
 
-      Text(
-        text = weeklyQuest.statusText,
-        style =
-          MaterialTheme.typography.labelMedium.copy(
-            fontFamily = FontFamily.Default,
-            fontWeight = if (weeklyQuest.isComplete) FontWeight.SemiBold else FontWeight.Medium,
-            letterSpacing = 0.5.sp,
-          ),
-        color =
-          if (weeklyQuest.isComplete) {
-            accentColor
-          } else {
-            MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
-          },
-        modifier = Modifier.testTag("system_weekly_quest_status"),
-      )
-    }
-
-    Row(
-      modifier = Modifier.fillMaxWidth(),
-      horizontalArrangement = Arrangement.SpaceBetween,
-      verticalAlignment = Alignment.Bottom,
-    ) {
-      Text(
-        text = weeklyQuest.targetHeaderFormatted,
-        style =
-          MaterialTheme.typography.titleMedium.copy(
-            fontFamily = FontFamily.Default,
-            fontSize = 15.sp,
-            fontWeight = FontWeight.SemiBold,
-            letterSpacing = 0.sp,
-          ),
-        color = MaterialTheme.colorScheme.onBackground,
-        modifier = Modifier.testTag("system_weekly_quest_target"),
-      )
-
-      Text(
-        text = weeklyQuest.currentPerDayFormatted,
-        style =
-          MaterialTheme.typography.bodyMedium.copy(
-            fontFamily = FontFamily.Monospace,
-            fontSize = 13.sp,
-          ),
-        color = if (weeklyQuest.isComplete) accentColor else MaterialTheme.colorScheme.onBackground,
-        modifier = Modifier.testTag("system_weekly_quest_current"),
-      )
-    }
-
-    LinearProgressIndicator(
-      progress = { weeklyQuest.progressFraction },
-      modifier =
-        Modifier.fillMaxWidth()
-          .height(1.5.dp)
-          .testTag("system_weekly_quest_progress_bar"),
-      color = accentColor,
-      trackColor = outlineColor,
-      strokeCap = StrokeCap.Butt,
-      gapSize = 0.dp,
-      drawStopIndicator = {},
-    )
-
-    if (!weeklyQuest.isComplete) {
-      Text(
-        text = weeklyQuest.neededPerDayFormatted,
-        style =
-          MaterialTheme.typography.labelSmall.copy(
-            fontFamily = FontFamily.Default,
-            fontSize = 11.sp,
-          ),
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
-        modifier = Modifier.testTag("system_weekly_quest_needed"),
-      )
+      if (!weeklyQuest.isComplete) {
+        Text(
+          text = weeklyQuest.neededPerDayFormatted,
+          style =
+            MaterialTheme.typography.labelSmall.copy(
+              fontFamily = FontFamily.SansSerif,
+              fontSize = 11.sp,
+              letterSpacing = 0.sp,
+            ),
+          color = MaterialTheme.colorScheme.onSurfaceVariant,
+          modifier = Modifier.testTag("system_weekly_quest_needed"),
+        )
+      }
     }
   }
 }
@@ -622,15 +623,16 @@ private fun AchievementsSection(
 ) {
   Column(
     modifier = Modifier.fillMaxWidth().testTag("system_achievements_section"),
-    verticalArrangement = Arrangement.spacedBy(12.dp),
+    verticalArrangement = Arrangement.spacedBy(10.dp),
   ) {
     Text(
       text = stringResource(R.string.system_achievements_header),
       style =
-        MaterialTheme.typography.labelMedium.copy(
-          fontFamily = FontFamily.Default,
-          fontWeight = FontWeight.SemiBold,
-          letterSpacing = 0.5.sp,
+        MaterialTheme.typography.labelSmall.copy(
+          fontFamily = FontFamily.SansSerif,
+          fontWeight = FontWeight.Bold,
+          fontSize = 12.sp,
+          letterSpacing = 0.sp,
         ),
       color = MaterialTheme.colorScheme.onSurfaceVariant,
       modifier = Modifier.testTag("system_achievements_header"),
@@ -642,66 +644,55 @@ private fun AchievementsSection(
       verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
       achievements.forEach { milestone ->
-        val borderColor =
-          if (milestone.isUnlocked) {
-            accentColor.copy(alpha = 0.8f)
-          } else {
-            MaterialTheme.colorScheme.outline
-          }
+        val chipShape = RoundedCornerShape(14.dp)
 
-        val containerColor =
-          if (milestone.isUnlocked) {
-            accentColor.copy(alpha = 0.06f)
-          } else {
-            MaterialTheme.colorScheme.surface
-          }
-
-        Column(
-          modifier =
-            Modifier.background(containerColor, RoundedCornerShape(2.dp))
-              .border(
-                width = 0.5.dp,
-                color = borderColor,
-                shape = RoundedCornerShape(2.dp),
-              )
-              .padding(horizontal = 12.dp, vertical = 8.dp)
-              .testTag("system_achievement_badge_${milestone.hours}h"),
-          horizontalAlignment = Alignment.Start,
-          verticalArrangement = Arrangement.spacedBy(3.dp),
+        NeumorphicSurface(
+          shape = chipShape,
+          elevation = 2.dp,
+          tintGreen = milestone.isUnlocked,
+          modifier = Modifier.testTag("system_achievement_badge_${milestone.hours}h"),
         ) {
-          Text(
-            text = milestone.displayTitle,
-            style =
-              MaterialTheme.typography.labelSmall.copy(
-                fontFamily = FontFamily.Default,
-                fontSize = 11.sp,
-                letterSpacing = 0.2.sp,
-                fontWeight = if (milestone.isUnlocked) FontWeight.SemiBold else FontWeight.Medium,
-              ),
-            color =
-              if (milestone.isUnlocked) {
-                accentColor
-              } else {
-                MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.45f)
-              },
-            modifier = Modifier.testTag("system_achievement_title_${milestone.hours}h"),
-          )
+          Column(
+            modifier = Modifier.padding(horizontal = 14.dp, vertical = 9.dp),
+            horizontalAlignment = Alignment.Start,
+            verticalArrangement = Arrangement.spacedBy(2.dp),
+          ) {
+            Text(
+              text = milestone.displayTitle,
+              style =
+                MaterialTheme.typography.labelSmall.copy(
+                  fontFamily = FontFamily.SansSerif,
+                  fontSize = 11.sp,
+                  letterSpacing = 0.sp,
+                  fontWeight = if (milestone.isUnlocked) FontWeight.Bold else FontWeight.Medium,
+                ),
+              color =
+                if (milestone.isUnlocked) {
+                  NeumorphicGreen
+                } else {
+                  MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                },
+              modifier = Modifier.testTag("system_achievement_title_${milestone.hours}h"),
+            )
 
-          Text(
-            text = milestone.progressFormatted,
-            style =
-              MaterialTheme.typography.labelSmall.copy(
-                fontFamily = FontFamily.Monospace,
-                fontSize = 10.sp,
-              ),
-            color =
-              if (milestone.isUnlocked) {
-                accentColor.copy(alpha = 0.85f)
-              } else {
-                MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.35f)
-              },
-            modifier = Modifier.testTag("system_achievement_progress_${milestone.hours}h"),
-          )
+            Text(
+              text = milestone.progressFormatted,
+              style =
+                MaterialTheme.typography.labelSmall.copy(
+                  fontFamily = FontFamily.SansSerif,
+                  fontFeatureSettings = "tnum",
+                  fontSize = 10.sp,
+                  letterSpacing = 0.sp,
+                ),
+              color =
+                if (milestone.isUnlocked) {
+                  NeumorphicGreen.copy(alpha = 0.85f)
+                } else {
+                  MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
+                },
+              modifier = Modifier.testTag("system_achievement_progress_${milestone.hours}h"),
+            )
+          }
         }
       }
     }

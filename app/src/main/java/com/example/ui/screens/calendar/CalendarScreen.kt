@@ -1,5 +1,6 @@
 package com.example.ui.screens.calendar
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -161,20 +162,22 @@ fun CalendarScreen(
         .background(MaterialTheme.colorScheme.background)
         .testTag(AppDestination.CALENDAR.screenTestTag)
         .verticalScroll(rememberScrollState())
-        .padding(horizontal = 24.dp, vertical = 16.dp),
+        .padding(horizontal = 20.dp, vertical = 12.dp),
     horizontalAlignment = Alignment.CenterHorizontally,
   ) {
     Column(
       modifier = Modifier.fillMaxWidth().widthIn(max = 600.dp),
-      verticalArrangement = Arrangement.spacedBy(24.dp),
+      verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
       // Header: CALENDAR
       Text(
         text = stringResource(R.string.calendar_header),
         style =
           MaterialTheme.typography.headlineMedium.copy(
-            fontFamily = FontFamily.Default,
-            fontWeight = FontWeight.SemiBold,
+            fontFamily = FontFamily.SansSerif,
+            fontWeight = FontWeight.Bold,
+            fontSize = 22.sp,
+            letterSpacing = 0.sp,
           ),
         color = MaterialTheme.colorScheme.onBackground,
         modifier = Modifier.testTag("screen_calendar_header"),
@@ -235,13 +238,13 @@ private fun MonthNavigationRow(
   Row(
     modifier =
       Modifier.fillMaxWidth()
+        .clip(RoundedCornerShape(12.dp))
+        .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(12.dp))
         .border(
-          width = 0.5.dp,
-          color = MaterialTheme.colorScheme.outline,
-          shape = RoundedCornerShape(2.dp),
+          BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)),
+          RoundedCornerShape(12.dp),
         )
-        .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(2.dp))
-        .padding(horizontal = 4.dp, vertical = 2.dp)
+        .padding(horizontal = 6.dp, vertical = 2.dp)
         .testTag("calendar_month_navigation"),
     horizontalArrangement = Arrangement.SpaceBetween,
     verticalAlignment = Alignment.CenterVertically,
@@ -256,7 +259,7 @@ private fun MonthNavigationRow(
         imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
         contentDescription = stringResource(R.string.cd_calendar_prev_month),
         tint = MaterialTheme.colorScheme.onBackground,
-        modifier = Modifier.size(18.dp),
+        modifier = Modifier.size(20.dp),
       )
     }
 
@@ -264,10 +267,10 @@ private fun MonthNavigationRow(
       text = monthTitle,
       style =
         MaterialTheme.typography.titleMedium.copy(
-          fontFamily = FontFamily.Default,
+          fontFamily = FontFamily.SansSerif,
           fontWeight = FontWeight.SemiBold,
           fontSize = 16.sp,
-          letterSpacing = 0.5.sp,
+          letterSpacing = 0.sp,
         ),
       color = MaterialTheme.colorScheme.onBackground,
       modifier = Modifier.testTag("calendar_screen_month_title"),
@@ -283,7 +286,7 @@ private fun MonthNavigationRow(
         imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
         contentDescription = stringResource(R.string.cd_calendar_next_month),
         tint = MaterialTheme.colorScheme.onBackground,
-        modifier = Modifier.size(18.dp),
+        modifier = Modifier.size(20.dp),
       )
     }
   }
@@ -298,12 +301,13 @@ private fun CalendarMonthGrid(
   Column(
     modifier =
       Modifier.fillMaxWidth()
+        .clip(RoundedCornerShape(14.dp))
+        .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(14.dp))
         .border(
-          width = 0.5.dp,
-          color = MaterialTheme.colorScheme.outline,
-          shape = RoundedCornerShape(2.dp),
+          BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)),
+          RoundedCornerShape(14.dp),
         )
-        .padding(horizontal = 12.dp, vertical = 14.dp)
+        .padding(horizontal = 14.dp, vertical = 14.dp)
         .testTag("calendar_screen_grid"),
     verticalArrangement = Arrangement.spacedBy(8.dp),
   ) {
@@ -321,9 +325,10 @@ private fun CalendarMonthGrid(
             text = label,
             style =
               MaterialTheme.typography.labelSmall.copy(
-                fontFamily = FontFamily.Default,
+                fontFamily = FontFamily.SansSerif,
                 fontSize = 11.sp,
                 fontWeight = FontWeight.Medium,
+                letterSpacing = 0.sp,
               ),
             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.65f),
             textAlign = TextAlign.Center,
@@ -385,25 +390,25 @@ private fun CalendarDayCell(
           MaterialTheme.colorScheme.onSurface
         }
       CalendarDayState.BEFORE_APP_START ->
-        MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.28f)
+        MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.35f)
       CalendarDayState.FUTURE ->
         MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.50f)
     }
 
-  val cellShape = if (isToday) CircleShape else RoundedCornerShape(2.dp)
+  val cellShape = if (isToday) CircleShape else RoundedCornerShape(12.dp)
 
   val backgroundModifier =
     when {
       isToday && isSelected ->
         Modifier.clip(CircleShape)
-          .background(accentColor.copy(alpha = 0.14f))
-          .border(1.dp, accentColor, CircleShape)
+          .background(accentColor.copy(alpha = 0.16f))
+          .border(1.5.dp, accentColor, CircleShape)
       isToday ->
         Modifier.clip(CircleShape)
-          .border(1.dp, accentColor, CircleShape)
+          .border(1.5.dp, accentColor, CircleShape)
       isSelected ->
         Modifier.clip(cellShape)
-          .background(MaterialTheme.colorScheme.surface)
+          .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f))
           .border(1.dp, MaterialTheme.colorScheme.onBackground.copy(alpha = 0.85f), cellShape)
       else -> Modifier.clip(cellShape)
     }
@@ -425,8 +430,10 @@ private fun CalendarDayCell(
         text = dayModel.dayOfMonth.toString(),
         style =
           MaterialTheme.typography.bodyMedium.copy(
-            fontFamily = FontFamily.Default,
+            fontFamily = FontFamily.SansSerif,
+            fontFeatureSettings = "tnum",
             fontSize = 13.sp,
+            letterSpacing = 0.sp,
             fontWeight = if (isToday || isSelected) FontWeight.SemiBold else FontWeight.Normal,
           ),
         color = textColor,
@@ -446,7 +453,7 @@ private fun CalendarDayCell(
         Box(
           modifier =
             Modifier.padding(top = 3.dp)
-              .size(if (focusMinutes > 0L) 3.5.dp else 2.5.dp)
+              .size(if (focusMinutes > 0L) 4.dp else 2.5.dp)
               .clip(CircleShape)
               .background(
                 if (focusMinutes > 0L) {
@@ -470,15 +477,15 @@ private fun CalendarSelectedDayDetail(
   Column(
     modifier =
       Modifier.fillMaxWidth()
+        .clip(RoundedCornerShape(14.dp))
+        .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(14.dp))
         .border(
-          width = 0.5.dp,
-          color = MaterialTheme.colorScheme.outline,
-          shape = RoundedCornerShape(2.dp),
+          BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)),
+          RoundedCornerShape(14.dp),
         )
-        .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(2.dp))
-        .padding(horizontal = 20.dp, vertical = 18.dp)
+        .padding(horizontal = 18.dp, vertical = 14.dp)
         .testTag("calendar_selected_day_section"),
-    verticalArrangement = Arrangement.spacedBy(12.dp),
+    verticalArrangement = Arrangement.spacedBy(10.dp),
   ) {
     Row(
       modifier = Modifier.fillMaxWidth(),
@@ -489,10 +496,10 @@ private fun CalendarSelectedDayDetail(
         text = selectedDay.shortDateHeader,
         style =
           MaterialTheme.typography.titleMedium.copy(
-            fontFamily = FontFamily.Default,
+            fontFamily = FontFamily.SansSerif,
             fontWeight = FontWeight.SemiBold,
             fontSize = 16.sp,
-            letterSpacing = 0.5.sp,
+            letterSpacing = 0.sp,
           ),
         color = MaterialTheme.colorScheme.onBackground,
         modifier = Modifier.testTag("calendar_selected_day_header"),
@@ -507,8 +514,11 @@ private fun CalendarSelectedDayDetail(
           text = selectedDay.deltaParenthesized ?: summary.deltaParenthesized,
           style =
             MaterialTheme.typography.labelMedium.copy(
-              fontFamily = FontFamily.Monospace,
-              fontSize = 12.sp,
+              fontFamily = FontFamily.SansSerif,
+              fontFeatureSettings = "tnum",
+              fontWeight = FontWeight.SemiBold,
+              fontSize = 13.sp,
+              letterSpacing = 0.sp,
             ),
           color =
             when {
@@ -527,7 +537,9 @@ private fun CalendarSelectedDayDetail(
           text = stringResource(R.string.calendar_before_app_start),
           style =
             MaterialTheme.typography.bodyMedium.copy(
-              fontFamily = FontFamily.Default,
+              fontFamily = FontFamily.SansSerif,
+              fontSize = 14.sp,
+              letterSpacing = 0.sp,
             ),
           color = MaterialTheme.colorScheme.onSurfaceVariant,
           modifier = Modifier.testTag("calendar_day_unavailable_status"),
@@ -538,7 +550,9 @@ private fun CalendarSelectedDayDetail(
           text = stringResource(R.string.calendar_future_date),
           style =
             MaterialTheme.typography.bodyMedium.copy(
-              fontFamily = FontFamily.Default,
+              fontFamily = FontFamily.SansSerif,
+              fontSize = 14.sp,
+              letterSpacing = 0.sp,
             ),
           color = MaterialTheme.colorScheme.onSurfaceVariant,
           modifier = Modifier.testTag("calendar_day_future_status"),
@@ -551,7 +565,7 @@ private fun CalendarSelectedDayDetail(
           val focusRatio = (summary.focusMinutes.toFloat() / 1440f).coerceIn(0f, 1f)
           val wastedRatio = (1f - focusRatio).coerceIn(0f, 1f)
 
-          Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+          Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
             Row(
               modifier = Modifier.fillMaxWidth(),
               horizontalArrangement = Arrangement.SpaceBetween,
@@ -559,7 +573,12 @@ private fun CalendarSelectedDayDetail(
             ) {
               Text(
                 text = stringResource(R.string.stats_focus_label),
-                style = MaterialTheme.typography.bodyLarge,
+                style = MaterialTheme.typography.bodyLarge.copy(
+                  fontFamily = FontFamily.SansSerif,
+                  fontSize = 15.sp,
+                  fontWeight = FontWeight.Medium,
+                  letterSpacing = 0.sp,
+                ),
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.testTag("calendar_selected_focus_label"),
               )
@@ -567,8 +586,9 @@ private fun CalendarSelectedDayDetail(
                 text = selectedDay.focusDisplayFormatted ?: summary.focusFormatted,
                 style =
                   MaterialTheme.typography.headlineMedium.copy(
-                    fontFamily = FontFamily.Monospace,
-                    fontWeight = FontWeight.Normal,
+                    fontFamily = FontFamily.SansSerif,
+                    fontFeatureSettings = "tnum",
+                    fontWeight = FontWeight.SemiBold,
                     fontSize = 24.sp,
                     letterSpacing = 0.sp,
                   ),
@@ -584,7 +604,12 @@ private fun CalendarSelectedDayDetail(
             ) {
               Text(
                 text = stringResource(R.string.stats_wasted_label),
-                style = MaterialTheme.typography.bodyLarge,
+                style = MaterialTheme.typography.bodyLarge.copy(
+                  fontFamily = FontFamily.SansSerif,
+                  fontSize = 15.sp,
+                  fontWeight = FontWeight.Medium,
+                  letterSpacing = 0.sp,
+                ),
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.testTag("calendar_selected_wasted_label"),
               )
@@ -592,8 +617,9 @@ private fun CalendarSelectedDayDetail(
                 text = selectedDay.wastedDisplayFormatted ?: summary.wastedFormatted,
                 style =
                   MaterialTheme.typography.headlineMedium.copy(
-                    fontFamily = FontFamily.Monospace,
-                    fontWeight = FontWeight.Normal,
+                    fontFamily = FontFamily.SansSerif,
+                    fontFeatureSettings = "tnum",
+                    fontWeight = FontWeight.SemiBold,
                     fontSize = 24.sp,
                     letterSpacing = 0.sp,
                   ),
@@ -606,8 +632,8 @@ private fun CalendarSelectedDayDetail(
             Row(
               modifier =
                 Modifier.fillMaxWidth()
-                  .height(2.dp)
-                  .clip(RoundedCornerShape(1.dp)),
+                  .height(4.dp)
+                  .clip(RoundedCornerShape(2.dp)),
             ) {
               if (focusRatio > 0f) {
                 Box(

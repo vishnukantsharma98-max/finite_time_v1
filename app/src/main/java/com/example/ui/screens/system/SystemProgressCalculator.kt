@@ -628,7 +628,7 @@ object SystemProgressCalculator {
   }
 
   fun formatNumberWithCommas(value: Long): String {
-    return NumberFormat.getNumberInstance(Locale.US).format(value)
+    return com.example.ui.util.IndianNumberFormatter.format(value)
   }
 
   /**

@@ -52,6 +52,8 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.example.R
 import com.example.data.focus.FocusSegmentEntity
 import com.example.data.focus.FocusSessionEntity
+import com.example.ui.components.NeumorphicGreen
+import com.example.ui.components.NeumorphicSurface
 import com.example.ui.navigation.AppDestination
 import com.example.ui.screens.focus.FocusTimeCalculator
 import com.example.ui.theme.DarkWastedAccent
@@ -135,12 +137,12 @@ fun StatsScreen(
         .background(MaterialTheme.colorScheme.background)
         .testTag(AppDestination.STATS.screenTestTag)
         .verticalScroll(rememberScrollState())
-        .padding(horizontal = 24.dp, vertical = 16.dp),
+        .padding(horizontal = 20.dp, vertical = 12.dp),
     horizontalAlignment = Alignment.CenterHorizontally,
   ) {
     Column(
       modifier = Modifier.fillMaxWidth().widthIn(max = 600.dp),
-      verticalArrangement = Arrangement.spacedBy(24.dp),
+      verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
       // Header + Period Selector Row
       Row(
@@ -152,8 +154,10 @@ fun StatsScreen(
           text = stringResource(R.string.stats_header),
           style =
             MaterialTheme.typography.headlineMedium.copy(
-              fontFamily = FontFamily.Default,
-              fontWeight = FontWeight.SemiBold,
+              fontFamily = FontFamily.SansSerif,
+              fontWeight = FontWeight.Bold,
+              fontSize = 22.sp,
+              letterSpacing = 0.sp,
             ),
           color = MaterialTheme.colorScheme.onBackground,
           modifier = Modifier.testTag("screen_stats_header"),
@@ -192,12 +196,25 @@ fun StatsScreen(
           ) {
             Text(
               text = stringResource(R.string.stats_week_section_header),
-              style = MaterialTheme.typography.labelMedium,
+              style =
+                MaterialTheme.typography.labelMedium.copy(
+                  fontFamily = FontFamily.SansSerif,
+                  fontWeight = FontWeight.SemiBold,
+                  fontSize = 13.sp,
+                  letterSpacing = 0.sp,
+                ),
               color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             Text(
               text = snapshot.weekSummary.totalWeekFocusFormatted,
-              style = MaterialTheme.typography.labelMedium,
+              style =
+                MaterialTheme.typography.labelMedium.copy(
+                  fontFamily = FontFamily.SansSerif,
+                  fontFeatureSettings = "tnum",
+                  fontWeight = FontWeight.SemiBold,
+                  fontSize = 14.sp,
+                  letterSpacing = 0.sp,
+                ),
               color = focusColor,
               modifier = Modifier.testTag("stats_week_total_focus"),
             )
@@ -214,12 +231,25 @@ fun StatsScreen(
           ) {
             Text(
               text = snapshot.monthSummary.monthTitle,
-              style = MaterialTheme.typography.labelMedium,
+              style =
+                MaterialTheme.typography.labelMedium.copy(
+                  fontFamily = FontFamily.SansSerif,
+                  fontWeight = FontWeight.SemiBold,
+                  fontSize = 13.sp,
+                  letterSpacing = 0.sp,
+                ),
               color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             Text(
               text = snapshot.monthSummary.totalMonthFocusFormatted,
-              style = MaterialTheme.typography.labelMedium,
+              style =
+                MaterialTheme.typography.labelMedium.copy(
+                  fontFamily = FontFamily.SansSerif,
+                  fontFeatureSettings = "tnum",
+                  fontWeight = FontWeight.SemiBold,
+                  fontSize = 14.sp,
+                  letterSpacing = 0.sp,
+                ),
               color = focusColor,
               modifier = Modifier.testTag("stats_month_total_focus"),
             )
@@ -250,61 +280,59 @@ private fun StatsPeriodSelector(
   onPeriodSelected: (StatsPeriod) -> Unit,
 ) {
   Row(
-    modifier = Modifier.testTag("stats_period_selector"),
+    modifier =
+      Modifier.testTag("stats_period_selector")
+        .clip(RoundedCornerShape(16.dp))
+        .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(16.dp))
+        .border(
+          BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.6f)),
+          RoundedCornerShape(16.dp),
+        )
+        .padding(3.dp),
     horizontalArrangement = Arrangement.spacedBy(4.dp),
     verticalAlignment = Alignment.CenterVertically,
   ) {
     StatsPeriod.entries.forEach { period ->
       val isSelected = period == selectedPeriod
-      Surface(
-        shape = RoundedCornerShape(2.dp),
-        color =
-          if (isSelected) {
-            MaterialTheme.colorScheme.surface
-          } else {
-            Color.Transparent
-          },
-        border =
-          BorderStroke(
-            width = 0.5.dp,
-            color =
-              if (isSelected) {
-                MaterialTheme.colorScheme.tertiary
-              } else {
-                MaterialTheme.colorScheme.outline
-              },
-          ),
-      ) {
-        Box(
-          modifier =
-            Modifier.defaultMinSize(minWidth = 54.dp, minHeight = 48.dp)
-              .clickable(
-                role = Role.Tab,
-                onClick = { onPeriodSelected(period) },
-              )
-              .semantics { selected = isSelected }
-              .testTag(period.tabTestTag)
-              .padding(horizontal = 10.dp, vertical = 6.dp),
-          contentAlignment = Alignment.Center,
-        ) {
-          Text(
-            text = stringResource(period.labelRes).uppercase(),
-            style =
-              MaterialTheme.typography.labelSmall.copy(
-                fontFamily = FontFamily.Default,
-                fontSize = 11.sp,
-                letterSpacing = 0.sp,
-                fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
-              ),
-            color =
-              if (isSelected) {
-                MaterialTheme.colorScheme.onBackground
-              } else {
-                MaterialTheme.colorScheme.onSurfaceVariant
-              },
-            maxLines = 1,
-          )
+      val pillShape = RoundedCornerShape(12.dp)
+      val bgModifier =
+        if (isSelected) {
+          Modifier.background(MaterialTheme.colorScheme.primaryContainer, pillShape)
+        } else {
+          Modifier
         }
+
+      Box(
+        modifier =
+          Modifier.defaultMinSize(minWidth = 54.dp, minHeight = 44.dp)
+            .clip(pillShape)
+            .then(bgModifier)
+            .clickable(
+              role = Role.Tab,
+              onClick = { onPeriodSelected(period) },
+            )
+            .semantics { selected = isSelected }
+            .testTag(period.tabTestTag)
+            .padding(horizontal = 12.dp, vertical = 8.dp),
+        contentAlignment = Alignment.Center,
+      ) {
+        Text(
+          text = stringResource(period.labelRes).uppercase(),
+          style =
+            MaterialTheme.typography.labelSmall.copy(
+              fontFamily = FontFamily.SansSerif,
+              fontSize = 11.sp,
+              letterSpacing = 0.sp,
+              fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium,
+            ),
+          color =
+            if (isSelected) {
+              MaterialTheme.colorScheme.onBackground
+            } else {
+              MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.65f)
+            },
+          maxLines = 1,
+        )
       }
     }
   }
@@ -322,15 +350,15 @@ private fun DailySummarySection(
   Column(
     modifier =
       Modifier.fillMaxWidth()
+        .clip(RoundedCornerShape(16.dp))
+        .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(16.dp))
         .border(
-          width = 0.5.dp,
-          color = MaterialTheme.colorScheme.outline,
-          shape = RoundedCornerShape(2.dp),
+          BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.6f)),
+          RoundedCornerShape(16.dp),
         )
-        .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(2.dp))
         .padding(horizontal = 20.dp, vertical = 18.dp)
         .testTag("stats_daily_summary"),
-    verticalArrangement = Arrangement.spacedBy(12.dp),
+    verticalArrangement = Arrangement.spacedBy(14.dp),
   ) {
     Row(
       modifier = Modifier.fillMaxWidth(),
@@ -341,10 +369,10 @@ private fun DailySummarySection(
         text = dailySummary.dateDisplayLabel,
         style =
           MaterialTheme.typography.labelMedium.copy(
-            fontFamily = FontFamily.Default,
+            fontFamily = FontFamily.SansSerif,
             fontWeight = FontWeight.SemiBold,
-            fontSize = 12.sp,
-            letterSpacing = 0.5.sp,
+            fontSize = 13.sp,
+            letterSpacing = 0.sp,
           ),
         color = MaterialTheme.colorScheme.onSurfaceVariant,
         modifier = Modifier.testTag("stats_selected_date"),
@@ -354,8 +382,11 @@ private fun DailySummarySection(
         text = dailySummary.deltaParenthesized,
         style =
           MaterialTheme.typography.labelMedium.copy(
-            fontFamily = FontFamily.Monospace,
-            fontSize = 12.sp,
+            fontFamily = FontFamily.SansSerif,
+            fontFeatureSettings = "tnum",
+            fontWeight = FontWeight.SemiBold,
+            fontSize = 13.sp,
+            letterSpacing = 0.sp,
           ),
         color =
           when {
@@ -374,7 +405,12 @@ private fun DailySummarySection(
     ) {
       Text(
         text = stringResource(R.string.stats_focus_label),
-        style = MaterialTheme.typography.bodyLarge,
+        style = MaterialTheme.typography.bodyLarge.copy(
+          fontFamily = FontFamily.SansSerif,
+          fontSize = 15.sp,
+          fontWeight = FontWeight.Medium,
+          letterSpacing = 0.sp,
+        ),
         color = MaterialTheme.colorScheme.onSurfaceVariant,
         modifier = Modifier.testTag("stats_daily_focus_label"),
       )
@@ -382,9 +418,10 @@ private fun DailySummarySection(
         text = dailySummary.focusFormatted,
         style =
           MaterialTheme.typography.headlineMedium.copy(
-            fontFamily = FontFamily.Monospace,
-            fontWeight = FontWeight.Normal,
-            fontSize = 26.sp,
+            fontFamily = FontFamily.SansSerif,
+            fontFeatureSettings = "tnum",
+            fontWeight = FontWeight.SemiBold,
+            fontSize = 24.sp,
             letterSpacing = 0.sp,
           ),
         color = focusColor,
@@ -399,7 +436,12 @@ private fun DailySummarySection(
     ) {
       Text(
         text = stringResource(R.string.stats_wasted_label),
-        style = MaterialTheme.typography.bodyLarge,
+        style = MaterialTheme.typography.bodyLarge.copy(
+          fontFamily = FontFamily.SansSerif,
+          fontSize = 15.sp,
+          fontWeight = FontWeight.Medium,
+          letterSpacing = 0.sp,
+        ),
         color = MaterialTheme.colorScheme.onSurfaceVariant,
         modifier = Modifier.testTag("stats_daily_wasted_label"),
       )
@@ -407,9 +449,10 @@ private fun DailySummarySection(
         text = dailySummary.wastedFormatted,
         style =
           MaterialTheme.typography.headlineMedium.copy(
-            fontFamily = FontFamily.Monospace,
-            fontWeight = FontWeight.Normal,
-            fontSize = 26.sp,
+            fontFamily = FontFamily.SansSerif,
+            fontFeatureSettings = "tnum",
+            fontWeight = FontWeight.SemiBold,
+            fontSize = 24.sp,
             letterSpacing = 0.sp,
           ),
         color = wastedColor,
@@ -421,8 +464,8 @@ private fun DailySummarySection(
     Row(
       modifier =
         Modifier.fillMaxWidth()
-          .height(2.dp)
-          .clip(RoundedCornerShape(1.dp)),
+          .height(4.dp)
+          .clip(RoundedCornerShape(2.dp)),
     ) {
       if (focusRatio > 0f) {
         Box(
@@ -452,24 +495,24 @@ private fun AverageFocusSection(
   Column(
     modifier =
       Modifier.fillMaxWidth()
+        .clip(RoundedCornerShape(16.dp))
+        .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(16.dp))
         .border(
-          width = 0.5.dp,
-          color = MaterialTheme.colorScheme.outline,
-          shape = RoundedCornerShape(2.dp),
+          BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.6f)),
+          RoundedCornerShape(16.dp),
         )
-        .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(2.dp))
         .padding(horizontal = 20.dp, vertical = 18.dp)
         .testTag("stats_average_section"),
-    verticalArrangement = Arrangement.spacedBy(8.dp),
+    verticalArrangement = Arrangement.spacedBy(10.dp),
   ) {
     Text(
       text = stringResource(R.string.stats_average_focus_header),
       style =
         MaterialTheme.typography.labelMedium.copy(
-          fontFamily = FontFamily.Default,
+          fontFamily = FontFamily.SansSerif,
           fontWeight = FontWeight.SemiBold,
-          fontSize = 12.sp,
-          letterSpacing = 0.5.sp,
+          fontSize = 13.sp,
+          letterSpacing = 0.sp,
         ),
       color = MaterialTheme.colorScheme.onSurfaceVariant,
       modifier = Modifier.testTag("stats_average_header"),
@@ -484,9 +527,10 @@ private fun AverageFocusSection(
         text = averageSummary.averageFocusFormatted,
         style =
           MaterialTheme.typography.headlineMedium.copy(
-            fontFamily = FontFamily.Monospace,
-            fontWeight = FontWeight.Normal,
-            fontSize = 26.sp,
+            fontFamily = FontFamily.SansSerif,
+            fontFeatureSettings = "tnum",
+            fontWeight = FontWeight.SemiBold,
+            fontSize = 24.sp,
             letterSpacing = 0.sp,
           ),
         color = MaterialTheme.colorScheme.onBackground,
@@ -497,8 +541,11 @@ private fun AverageFocusSection(
         text = averageSummary.averageDeltaParenthesized,
         style =
           MaterialTheme.typography.labelMedium.copy(
-            fontFamily = FontFamily.Monospace,
-            fontSize = 12.sp,
+            fontFamily = FontFamily.SansSerif,
+            fontFeatureSettings = "tnum",
+            fontWeight = FontWeight.SemiBold,
+            fontSize = 13.sp,
+            letterSpacing = 0.sp,
           ),
         color =
           if (averageSummary.averageDeltaMinutes > 0L) {
@@ -531,22 +578,23 @@ private fun FractionalHourGraphSection(
       }
     }
 
-  val outlineColor = MaterialTheme.colorScheme.outline
+  val outlineColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.6f)
 
   Column(
     modifier =
       Modifier.fillMaxWidth()
+        .clip(RoundedCornerShape(14.dp))
+        .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(14.dp))
         .border(
-          width = 0.5.dp,
-          color = outlineColor,
-          shape = RoundedCornerShape(2.dp),
+          BorderStroke(1.dp, outlineColor.copy(alpha = 0.35f)),
+          RoundedCornerShape(14.dp),
         )
-        .padding(horizontal = 16.dp, vertical = 18.dp)
+        .padding(horizontal = 16.dp, vertical = 14.dp)
         .testTag("stats_fractional_chart"),
-    verticalArrangement = Arrangement.spacedBy(12.dp),
+    verticalArrangement = Arrangement.spacedBy(10.dp),
   ) {
     Row(
-      modifier = Modifier.fillMaxWidth().height(296.dp),
+      modifier = Modifier.fillMaxWidth().height(210.dp),
       horizontalArrangement = Arrangement.spacedBy(10.dp),
     ) {
       // Y-Axis Fractional-Hour Labels
@@ -564,9 +612,10 @@ private fun FractionalHourGraphSection(
               text = label,
               style =
                 MaterialTheme.typography.labelSmall.copy(
-                  fontFamily = FontFamily.Monospace,
-                  fontSize = 9.sp,
-                  lineHeight = 9.sp,
+                  fontFamily = FontFamily.SansSerif,
+                  fontFeatureSettings = "tnum",
+                  fontSize = 10.sp,
+                  lineHeight = 11.sp,
                 ),
               maxLines = 1,
               color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -578,10 +627,10 @@ private fun FractionalHourGraphSection(
       // Vertical Hairline Axis
       Box(
         modifier =
-          Modifier.width(0.5.dp)
+          Modifier.width(1.dp)
             .fillMaxHeight()
             .padding(bottom = 18.dp)
-            .background(outlineColor),
+            .background(outlineColor.copy(alpha = 0.5f)),
       )
 
       // Minimalist Bars + Horizontal Hairline Grid
@@ -595,17 +644,17 @@ private fun FractionalHourGraphSection(
               for (i in 0 until stepCount) {
                 val y = (plotHeight / stepCount) * (i + 0.5f)
                 drawLine(
-                  color = outlineColor.copy(alpha = 0.45f),
+                  color = outlineColor.copy(alpha = 0.3f),
                   start = Offset(0f, y),
                   end = Offset(size.width, y),
-                  strokeWidth = 0.5.dp.toPx(),
+                  strokeWidth = 1.dp.toPx(),
                 )
               }
               drawLine(
-                color = outlineColor,
+                color = outlineColor.copy(alpha = 0.5f),
                 start = Offset(0f, plotHeight),
                 end = Offset(size.width, plotHeight),
-                strokeWidth = 0.5.dp.toPx(),
+                strokeWidth = 1.dp.toPx(),
               )
             },
         horizontalArrangement = Arrangement.SpaceEvenly,
@@ -630,9 +679,9 @@ private fun FractionalHourGraphSection(
           ) {
             Column(
               modifier =
-                Modifier.width(12.dp)
+                Modifier.width(14.dp)
                   .weight(1f)
-                  .clip(RoundedCornerShape(1.dp)),
+                  .clip(RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp)),
               verticalArrangement = Arrangement.Bottom,
             ) {
               if (wastedRatio > 0f) {
@@ -640,7 +689,7 @@ private fun FractionalHourGraphSection(
                   modifier =
                     Modifier.fillMaxWidth()
                       .weight(wastedRatio)
-                      .background(wastedColor.copy(alpha = 0.16f)),
+                      .background(wastedColor.copy(alpha = 0.22f)),
                 )
               }
               if (focusRatio > 0f) {
@@ -659,8 +708,9 @@ private fun FractionalHourGraphSection(
               text = bar.label.takeLast(3),
               style =
                 MaterialTheme.typography.labelSmall.copy(
-                  fontFamily = FontFamily.Default,
+                  fontFamily = FontFamily.SansSerif,
                   fontSize = 10.sp,
+                  fontWeight = FontWeight.Medium,
                 ),
               color = MaterialTheme.colorScheme.onSurfaceVariant,
               maxLines = 1,

@@ -196,7 +196,7 @@ object HomeTimeCalculator {
         val hours = (totalSeconds % 86400L) / 3600L
         val minutes = (totalSeconds % 3600L) / 60L
         val seconds = totalSeconds % 60L
-        "${days}d ${hours}h ${minutes}m ${seconds}s"
+        "${com.example.ui.util.IndianNumberFormatter.format(days)}d ${hours}h ${minutes}m ${seconds}s"
       }
       CountdownDisplayFormat.HOURS_MINUTES_SECONDS -> {
         val totalHours = totalSeconds / 3600L
@@ -234,7 +234,7 @@ object HomeTimeCalculator {
         val minutes = (totalSeconds % 3600L) / 60L
         val seconds = totalSeconds % 60L
         val dayWord = if (days == 1L) "day" else "days"
-        Pair("$days $dayWord", "${hours}h ${minutes}m ${seconds}s")
+        Pair("${com.example.ui.util.IndianNumberFormatter.format(days)} $dayWord", "${hours}h ${minutes}m ${seconds}s")
       }
       else -> Pair(formatCountdown(remainingMillis, format), null)
     }
